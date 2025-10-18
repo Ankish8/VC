@@ -34,6 +34,7 @@ import {
 import { ColorPaletteOption } from "@/lib/color-palettes";
 import { useHistory } from "@/hooks/useHistory";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useRecentColors } from "@/hooks/useRecentColors";
 
 // State that should be tracked in history
 interface EditorHistoryState {
@@ -90,6 +91,9 @@ export function SVGEditorLayout({
     svgString: "",
     colors: [],
   });
+
+  // Recent colors tracking
+  const { recentColors, addRecentColor } = useRecentColors();
 
   // Editor state
   const [activeTool, setActiveTool] = useState<EditorTool>("select");
@@ -195,6 +199,9 @@ export function SVGEditorLayout({
 
     // Push to history
     updateSVGState(newElement);
+
+    // Add to recent colors
+    addRecentColor(newColor);
 
     setShowColorPicker(false);
     setColorToEdit(null);
@@ -489,6 +496,29 @@ export function SVGEditorLayout({
 
           <div className="flex flex-col items-center gap-4 py-4">
             <HexColorPicker color={newColor} onChange={setNewColor} />
+
+            {/* Recent Colors */}
+            {recentColors.length > 0 && (
+              <div className="w-full">
+                <div className="text-xs font-medium text-muted-foreground mb-2">
+                  Recent Colors
+                </div>
+                <div className="grid grid-cols-6 gap-2">
+                  {recentColors.map((color) => (
+                    <button
+                      key={color}
+                      className={cn(
+                        "w-full aspect-square rounded border-2 transition-all hover:scale-110",
+                        newColor.toLowerCase() === color && "border-primary ring-2 ring-primary/20"
+                      )}
+                      style={{ backgroundColor: color }}
+                      onClick={() => setNewColor(color)}
+                      title={color.toUpperCase()}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="flex items-center gap-4 w-full">
               <div className="flex-1">
