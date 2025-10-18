@@ -478,6 +478,8 @@ export function SVGEditorLayout({
         svgFileSize={svgFileSize}
         originalDimensions={originalDimensions}
         compressionRatio={compressionRatio}
+        svgElement={svgElement}
+        filename={filename.replace(/\.[^/.]+$/, "")} // Remove extension
         className="w-[28%] min-w-[320px] flex-shrink-0"
       />
 

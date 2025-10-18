@@ -17,6 +17,8 @@ import {
   Droplets,
   Info,
 } from "lucide-react";
+import { ExportDialog, ExportOptions } from "./ExportDialog";
+import { exportFile } from "@/lib/export-utils";
 import {
   Tabs,
   TabsContent,
@@ -55,6 +57,8 @@ interface ToolsPanelProps {
   svgFileSize?: number;
   originalDimensions?: string;
   compressionRatio?: string;
+  svgElement?: SVGElement | null;
+  filename?: string;
   className?: string;
 }
 
@@ -68,7 +72,6 @@ export function ToolsPanel({
   onColorReduce,
   appliedReduction,
   hasChanges,
-  onReset,
   onDownload,
   onCopyCode,
   onConvertAnother,
@@ -77,9 +80,21 @@ export function ToolsPanel({
   svgFileSize,
   originalDimensions,
   compressionRatio,
+  svgElement,
+  filename = "exported",
   className,
 }: ToolsPanelProps) {
   const [activeTab, setActiveTab] = useState("tools");
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+
+  const handleExport = async (options: ExportOptions) => {
+    if (svgElement) {
+      await exportFile(svgElement, options);
+    } else {
+      // Fallback to old download method
+      onDownload();
+    }
+  };
 
   const formatFileSize = (bytes?: number): string => {
     if (!bytes) return "N/A";
@@ -238,15 +253,15 @@ export function ToolsPanel({
           <TooltipTrigger asChild>
             <Button
               className="w-full gap-2 h-9"
-              onClick={onDownload}
+              onClick={() => setExportDialogOpen(true)}
               size="sm"
             >
               <Download className="h-3.5 w-3.5" />
-              Download SVG
+              Export
             </Button>
           </TooltipTrigger>
           <TooltipContent side="left">
-            <p>Download edited SVG file</p>
+            <p>Export as SVG, PNG, or PDF</p>
           </TooltipContent>
         </Tooltip>
 
@@ -319,6 +334,14 @@ export function ToolsPanel({
           </>
         )}
       </div>
+
+      {/* Export Dialog */}
+      <ExportDialog
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        onExport={handleExport}
+        defaultFilename={filename}
+      />
     </div>
   );
 }
