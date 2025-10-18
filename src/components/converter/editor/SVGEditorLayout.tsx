@@ -10,6 +10,8 @@ import { SVGCanvas } from "./SVGCanvas";
 import { ToolsPanel } from "./ToolsPanel";
 import { ComparisonView } from "./ComparisonView";
 import { MiniMap } from "./MiniMap";
+import { ColorHarmonies } from "./ColorHarmonies";
+import { RecentColorsGrid } from "./RecentColorsGrid";
 import { HexColorPicker } from "react-colorful";
 import {
   Dialog,
@@ -498,27 +500,12 @@ export function SVGEditorLayout({
             <HexColorPicker color={newColor} onChange={setNewColor} />
 
             {/* Recent Colors */}
-            {recentColors.length > 0 && (
-              <div className="w-full">
-                <div className="text-xs font-medium text-muted-foreground mb-2">
-                  Recent Colors
-                </div>
-                <div className="grid grid-cols-6 gap-2">
-                  {recentColors.map((color) => (
-                    <button
-                      key={color}
-                      className={cn(
-                        "w-full aspect-square rounded border-2 transition-all hover:scale-110",
-                        newColor.toLowerCase() === color && "border-primary ring-2 ring-primary/20"
-                      )}
-                      style={{ backgroundColor: color }}
-                      onClick={() => setNewColor(color)}
-                      title={color.toUpperCase()}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+            <RecentColorsGrid
+              colors={recentColors}
+              selectedColor={newColor}
+              onColorSelect={setNewColor}
+              columns={6}
+            />
 
             <div className="flex items-center gap-4 w-full">
               <div className="flex-1">
@@ -558,6 +545,14 @@ export function SVGEditorLayout({
               onChange={(e) => setNewColor(e.target.value)}
               className="w-full px-3 py-2 border rounded-md font-mono text-sm"
               placeholder="#000000"
+            />
+
+            {/* Color Harmonies */}
+            <ColorHarmonies
+              baseColor={colorToEdit || newColor}
+              onColorSelect={setNewColor}
+              selectedColor={newColor}
+              className="w-full"
             />
           </div>
 
