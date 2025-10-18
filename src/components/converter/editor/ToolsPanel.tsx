@@ -72,6 +72,7 @@ export function ToolsPanel({
   onColorReduce,
   appliedReduction,
   hasChanges,
+  onReset,
   onDownload,
   onCopyCode,
   onConvertAnother,
