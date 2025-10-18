@@ -295,7 +295,7 @@ export function ToolsPanel({
           </Tooltip>
         )}
 
-        {hasChanges && (
+        {hasChanges && onReset && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button

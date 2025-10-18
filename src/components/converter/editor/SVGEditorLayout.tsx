@@ -200,15 +200,20 @@ export function SVGEditorLayout({
 
   // Apply color change
   const handleApplyColor = () => {
+    console.log("Apply color - Old:", colorToEdit, "New:", newColor, "SVG exists:", !!svgElement);
+
     if (!colorToEdit || !svgElement || colorToEdit === newColor) {
+      console.log("Skipping color change - conditions not met");
       setShowColorPicker(false);
       return;
     }
 
+    console.log("Replacing color in SVG...");
     // Clone element to avoid mutating history
     const newElement = cloneSVGElement(svgElement);
     replaceSVGColor(newElement, colorToEdit, newColor);
 
+    console.log("Updating SVG state...");
     // Push to history
     updateSVGState(newElement);
 
@@ -291,8 +296,11 @@ export function SVGEditorLayout({
 
   // Handle SVG element click based on active tool
   const handleElementClick = (element: SVGElement, color: string) => {
+    console.log("Element clicked - Tool:", activeTool, "Color:", color);
+
     if (activeTool === "colorReplace") {
       // Pick color and show color picker dialog
+      console.log("Opening color picker for color:", color);
       handleColorEdit(color);
     } else if (activeTool === "eraser") {
       // Background removal - make color transparent
