@@ -114,11 +114,11 @@ export function ToolsPanel({
       {/* Tabbed Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
         <TabsList className="grid w-full grid-cols-3 mx-3 mt-2">
-          <TabsTrigger value="tools" className="text-xs gap-1">
+          <TabsTrigger value="tools" className="text-xs gap-1" data-tour="tools">
             <Wrench className="h-3 w-3" />
             Tools
           </TabsTrigger>
-          <TabsTrigger value="colors" className="text-xs gap-1">
+          <TabsTrigger value="colors" className="text-xs gap-1" data-tour="colors">
             <Droplets className="h-3 w-3" />
             Colors
           </TabsTrigger>
@@ -256,6 +256,7 @@ export function ToolsPanel({
               className="w-full gap-2 h-9"
               onClick={() => setExportDialogOpen(true)}
               size="sm"
+              data-tour="export"
             >
               <Download className="h-3.5 w-3.5" />
               Export

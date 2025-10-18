@@ -37,6 +37,8 @@ import { ColorPaletteOption } from "@/lib/color-palettes";
 import { useHistory } from "@/hooks/useHistory";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useRecentColors } from "@/hooks/useRecentColors";
+import { useOnboarding } from "@/hooks/useOnboarding";
+import { OnboardingTour, TourStep } from "./OnboardingTour";
 
 // State that should be tracked in history
 interface EditorHistoryState {
@@ -96,6 +98,14 @@ export function SVGEditorLayout({
 
   // Recent colors tracking
   const { recentColors, addRecentColor } = useRecentColors();
+
+  // Onboarding tour
+  const {
+    isTourOpen,
+    completeOnboarding,
+    skipOnboarding,
+    closeTour,
+  } = useOnboarding();
 
   // Editor state
   const [activeTool, setActiveTool] = useState<EditorTool>("select");
@@ -295,6 +305,40 @@ export function SVGEditorLayout({
     }
   };
 
+  // Define tour steps
+  const tourSteps: TourStep[] = [
+    {
+      target: "[data-tour='canvas']",
+      title: "SVG Canvas",
+      description: "This is your main editing area. Click on colors in the SVG to select and edit them. Use the mouse wheel to zoom in and out, and drag to pan.",
+      placement: "right",
+    },
+    {
+      target: "[data-tour='tools']",
+      title: "Editor Tools",
+      description: "Switch between different editing tools: Select tool for navigation, Color Picker to replace colors, and Eraser to remove elements.",
+      placement: "left",
+    },
+    {
+      target: "[data-tour='colors']",
+      title: "Color Palette",
+      description: "View all colors used in your SVG. Click any color to select it, then use the Color Picker tool to replace it with a new color.",
+      placement: "left",
+    },
+    {
+      target: "[data-tour='export']",
+      title: "Export Options",
+      description: "Export your edited SVG in multiple formats (SVG, PNG, PDF) with customizable quality and optimization settings.",
+      placement: "left",
+    },
+    {
+      target: "[data-tour='undo-redo']",
+      title: "Undo/Redo",
+      description: "Made a mistake? Use these buttons or press Ctrl+Z to undo and Ctrl+Shift+Z to redo your changes.",
+      placement: "bottom",
+    },
+  ];
+
   // Undo/redo keyboard shortcuts
   useKeyboardShortcuts([
     {
@@ -369,7 +413,7 @@ export function SVGEditorLayout({
           </div>
           <div className="flex items-center gap-2">
             {/* Undo/Redo Buttons */}
-            <div className="flex items-center gap-1 mr-2">
+            <div className="flex items-center gap-1 mr-2" data-tour="undo-redo">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -433,7 +477,7 @@ export function SVGEditorLayout({
         </div>
 
         {/* Canvas */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative" data-tour="canvas">
           {showComparison && originalImageUrl ? (
             <ComparisonView
               originalImageUrl={originalImageUrl}
@@ -569,6 +613,15 @@ export function SVGEditorLayout({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Onboarding Tour */}
+      <OnboardingTour
+        steps={tourSteps}
+        isOpen={isTourOpen}
+        onClose={closeTour}
+        onComplete={completeOnboarding}
+        onSkip={skipOnboarding}
+      />
     </div>
   </TooltipProvider>
 );
