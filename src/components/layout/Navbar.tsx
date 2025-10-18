@@ -89,16 +89,16 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full border-b bg-background">
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-14 items-center justify-between">
           {/* Logo and Title */}
           <div className="flex items-center gap-6">
             <Link
               href="/convert"
-              className="flex items-center gap-2 font-semibold text-lg hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 font-semibold text-sm hover:opacity-80 transition-opacity"
             >
-              <ImageIcon className="h-6 w-6 text-primary" />
+              <ImageIcon className="h-5 w-5 text-primary" />
               <span className="hidden sm:inline">Raster to SVG</span>
               <span className="sm:hidden">R2SVG</span>
             </Link>
@@ -114,10 +114,10 @@ export function Navbar() {
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                      "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
                       isActive
-                        ? "bg-secondary text-secondary-foreground"
-                        : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
+                        ? "bg-secondary text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                     )}
                   >
                     <Icon className="h-4 w-4" />

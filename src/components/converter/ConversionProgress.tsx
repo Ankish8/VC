@@ -86,40 +86,44 @@ export function ConversionProgress({
   const currentStageIndex = getStageIndex(stage);
 
   return (
-    <Card className={cn("w-full", className)}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Icon
-            className={cn(
-              "h-5 w-5",
-              config.color,
-              stage !== "completed" && stage !== "error" && "animate-spin"
-            )}
-          />
-          Converting to SVG
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Progress Bar */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium text-muted-foreground">
-              {config.label}
-            </span>
-            <span className="font-semibold">{displayProgress}%</span>
+    <div className={cn("w-full min-h-[500px] flex items-center justify-center", className)}>
+      <div className="w-full max-w-2xl space-y-8 p-8">
+        {/* Animated Icon */}
+        <div className="flex justify-center">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl animate-pulse"></div>
+            <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 ring-8 ring-primary/5">
+              <Icon
+                className={cn(
+                  "h-12 w-12 text-primary",
+                  stage !== "completed" && stage !== "error" && "animate-spin"
+                )}
+              />
+            </div>
           </div>
-          <Progress value={displayProgress} className="h-2" />
         </div>
 
-        {/* Status Message */}
-        {message && (
-          <p className="text-sm text-muted-foreground text-center">
-            {message}
-          </p>
-        )}
+        {/* Title & Progress */}
+        <div className="text-center space-y-4">
+          <h3 className="text-2xl font-semibold">Converting to SVG</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-sm px-1">
+              <span className="font-medium text-muted-foreground">
+                {config.label}
+              </span>
+              <span className="font-semibold text-lg">{displayProgress}%</span>
+            </div>
+            <Progress value={displayProgress} className="h-3" />
+          </div>
+          {message && (
+            <p className="text-base text-muted-foreground mt-4">
+              {message}
+            </p>
+          )}
+        </div>
 
         {/* Stage Indicators */}
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-center gap-4 pt-4">
           {(["uploading", "processing", "downloading", "completed"] as const).map(
             (stageName, index) => {
               const stageConfig = stageConfigs[stageName];
@@ -128,56 +132,44 @@ export function ConversionProgress({
               const isCompleted = index < currentStageIndex;
 
               return (
-                <div key={stageName} className="flex-1">
-                  <div className="flex flex-col items-center gap-2">
-                    <div
-                      className={cn(
-                        "flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all",
-                        isActive &&
-                          "border-primary bg-primary text-primary-foreground",
-                        isCompleted &&
-                          "border-primary bg-primary text-primary-foreground",
-                        !isActive &&
-                          !isCompleted &&
-                          "border-muted bg-muted text-muted-foreground"
-                      )}
-                    >
-                      {isCompleted ? (
-                        <CheckCircle2 className="h-5 w-5" />
-                      ) : (
-                        <StageIcon
-                          className={cn(
-                            "h-5 w-5",
-                            isActive && "animate-pulse"
-                          )}
-                        />
-                      )}
-                    </div>
-                    <Badge
-                      variant={
-                        isActive || isCompleted ? "default" : "secondary"
-                      }
-                      className="text-xs"
-                    >
-                      {stageConfig.label}
-                    </Badge>
+                <div key={stageName} className="flex flex-col items-center gap-3">
+                  <div
+                    className={cn(
+                      "flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-300",
+                      isActive &&
+                        "bg-primary text-primary-foreground scale-110 shadow-lg shadow-primary/25",
+                      isCompleted &&
+                        "bg-primary/10 text-primary",
+                      !isActive &&
+                        !isCompleted &&
+                        "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {isCompleted ? (
+                      <CheckCircle2 className="h-7 w-7" />
+                    ) : (
+                      <StageIcon
+                        className={cn(
+                          "h-7 w-7",
+                          isActive && "animate-pulse"
+                        )}
+                      />
+                    )}
                   </div>
+                  <span
+                    className={cn(
+                      "text-xs font-medium",
+                      (isActive || isCompleted) ? "text-foreground" : "text-muted-foreground"
+                    )}
+                  >
+                    {stageConfig.label}
+                  </span>
                 </div>
               );
             }
           )}
         </div>
-
-        {/* Processing Animation */}
-        {stage === "processing" && (
-          <div className="flex items-center justify-center gap-2 py-4">
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
-            <span className="text-sm font-medium text-muted-foreground">
-              Converting your image to vector format...
-            </span>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

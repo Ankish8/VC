@@ -7,29 +7,22 @@ interface DashboardLayoutProps {
 
 /**
  * Dashboard layout component that wraps all dashboard pages.
- * Includes the navigation bar and provides consistent spacing and structure.
+ * Clean, centered layout with top navigation only.
  *
  * Applied to routes: /convert, /history
  */
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+export default async function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
-    <div className="relative min-h-screen flex flex-col">
+    <div className="relative min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/20">
       {/* Navigation Bar */}
       <Navbar />
 
-      {/* Main Content Area */}
-      <main className="flex-1">
-        <div className="container mx-auto px-4 py-6 md:py-8">
+      {/* Main Content Area - Centered */}
+      <main className="flex-1 flex items-start justify-center">
+        <div className="w-full max-w-6xl px-4 py-12 md:py-16">
           {children}
         </div>
       </main>
-
-      {/* Footer (optional) */}
-      <footer className="border-t py-6 md:py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>Raster to SVG Converter - Transform images into scalable vector graphics</p>
-        </div>
-      </footer>
     </div>
   );
 }

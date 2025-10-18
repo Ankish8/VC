@@ -241,136 +241,116 @@ export default function ConvertPage() {
   const isError = workflowStage === "error";
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          <Sparkles className="h-8 w-8 text-primary" />
-          Convert to SVG
-        </h1>
-        <p className="text-muted-foreground">
-          Transform your raster images into scalable vector graphics
-        </p>
-      </div>
+    <div className="space-y-12">
+      {/* Page Header - Hero Style - Hide when completed */}
+      {!isCompleted && (
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-full mb-4">
+            <Sparkles className="h-6 w-6 text-primary" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+            Convert to SVG
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Transform your raster images into scalable vector graphics with AI
+          </p>
+        </div>
+      )}
 
       {/* Main Content Area */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left Column - Upload Section */}
-        <div className="space-y-6">
-          {!isConverting && !isCompleted && (
-            <ImageUpload
-              onFileSelect={handleFileSelect}
-              onClear={handleClear}
-              disabled={isConverting}
-              selectedFile={selectedFile}
-              previewUrl={previewUrl}
-              error={error?.details}
-            />
-          )}
-
-          {isConverting && (
-            <ConversionProgress
-              stage={
-                workflowStage as "uploading" | "processing" | "downloading"
-              }
-              progress={progress}
-              message={
-                workflowStage === "uploading"
-                  ? "Uploading your image to the server..."
-                  : workflowStage === "processing"
-                    ? "Converting your image to vector format using AI..."
-                    : "Preparing your SVG for download..."
-              }
-            />
-          )}
-
-          {isCompleted && conversion && (
-            <div className="space-y-4">
-              <Alert className="border-green-500/50 bg-green-50 dark:bg-green-950/20">
-                <Sparkles className="h-4 w-4 text-green-600" />
-                <AlertTitle className="text-green-600">
-                  Success!
-                </AlertTitle>
-                <AlertDescription className="text-green-600">
-                  Your image has been successfully converted to SVG format.
-                </AlertDescription>
-              </Alert>
-
-              <Button
-                onClick={handleConvertAnother}
-                variant="outline"
-                className="w-full"
-                size="lg"
-              >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Convert Another Image
-              </Button>
-            </div>
-          )}
-
-          {isError && error && (
-            <div className="space-y-4">
-              <Alert variant="destructive">
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>
-                  {error.message}
-                  {error.details && (
-                    <>
-                      <br />
-                      <span className="text-xs mt-2 block">
-                        {error.details}
-                      </span>
-                    </>
-                  )}
-                </AlertDescription>
-              </Alert>
-
-              <Button
-                onClick={handleConvertAnother}
-                variant="outline"
-                className="w-full"
-                size="lg"
-              >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Try Again
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Right Column - Preview Section */}
-        <div className="space-y-6">
-          {isCompleted && conversion ? (
-            <SVGPreview
-              conversion={conversion}
-              originalPreviewUrl={previewUrl || undefined}
-              onDownload={handleDownload}
-            />
-          ) : (
-            <div className="hidden lg:flex h-full min-h-[400px] items-center justify-center rounded-xl border-2 border-dashed bg-muted/50">
-              <div className="text-center space-y-2 p-6">
-                <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <Sparkles className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold">Preview Area</h3>
-                <p className="text-sm text-muted-foreground max-w-xs">
-                  Your converted SVG will appear here once the conversion is
-                  complete
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Mobile Preview (shown below on small screens) */}
-      {isCompleted && conversion && (
-        <div className="lg:hidden">
+      {isCompleted && conversion ? (
+        /* Centered Preview after Conversion */
+        <div className="max-w-4xl mx-auto mt-0">
           <SVGPreview
             conversion={conversion}
             originalPreviewUrl={previewUrl || undefined}
             onDownload={handleDownload}
           />
+          <div className="mt-8 flex justify-center">
+            <Button
+              onClick={handleConvertAnother}
+              variant="outline"
+              size="lg"
+              className="px-8"
+            >
+              <RefreshCw className="mr-2 h-5 w-5" />
+              Convert Another Image
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid gap-8 lg:grid-cols-2">
+          {/* Left Column - Upload Section */}
+          <div className="space-y-6">
+            {!isConverting && (
+              <ImageUpload
+                onFileSelect={handleFileSelect}
+                onClear={handleClear}
+                disabled={isConverting}
+                selectedFile={selectedFile}
+                previewUrl={previewUrl}
+                error={error?.details}
+              />
+            )}
+
+            {isConverting && (
+              <ConversionProgress
+                stage={
+                  workflowStage as "uploading" | "processing" | "downloading"
+                }
+                progress={progress}
+                message={
+                  workflowStage === "uploading"
+                    ? "Uploading your image to the server..."
+                    : workflowStage === "processing"
+                      ? "Converting your image to vector format using AI..."
+                      : "Preparing your SVG for download..."
+                }
+              />
+            )}
+
+            {isError && error && (
+              <div className="space-y-4">
+                <Alert variant="destructive">
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>
+                    {error.message}
+                    {error.details && (
+                      <>
+                        <br />
+                        <span className="text-xs mt-2 block">
+                          {error.details}
+                        </span>
+                      </>
+                    )}
+                  </AlertDescription>
+                </Alert>
+
+                <Button
+                  onClick={handleConvertAnother}
+                  variant="outline"
+                  className="w-full"
+                  size="lg"
+                >
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Try Again
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column - Preview Placeholder */}
+          <div className="hidden lg:flex h-full min-h-[500px] items-center justify-center rounded-2xl border border-dashed border-muted-foreground/25 bg-muted/30">
+            <div className="text-center space-y-4 p-8">
+              <div className="mx-auto h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-2">
+                <Sparkles className="h-10 w-10 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold">Preview</h3>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                Your converted SVG will appear here
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </div>

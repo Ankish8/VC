@@ -74,53 +74,23 @@ export function SVGPreview({
   };
 
   return (
-    <Card className={cn("w-full", className)}>
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
-              Conversion Complete
-            </CardTitle>
-            <CardDescription>
-              Your SVG is ready for download
-            </CardDescription>
+    <div className={cn("w-full space-y-6", className)}>
+      {/* Success Header - Compact */}
+      <div className="flex items-center justify-between px-2">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center p-2 bg-green-500/10 rounded-full">
+            <CheckCircle2 className="h-5 w-5 text-green-500" />
           </div>
-          <Badge variant="secondary" className="flex items-center gap-1">
-            <TrendingDown className="h-3 w-3" />
-            {calculateCompressionRatio()}% smaller
-          </Badge>
+          <h2 className="text-xl font-bold">Conversion Complete</h2>
         </div>
-      </CardHeader>
+        <Badge variant="secondary" className="text-sm px-3 py-1.5">
+          <TrendingDown className="h-3 w-3 mr-1" />
+          {calculateCompressionRatio()}% smaller
+        </Badge>
+      </div>
 
-      <CardContent className="space-y-6">
-        {/* File Information */}
-        <div className="grid grid-cols-2 gap-4 rounded-lg border bg-muted/50 p-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <FileImage className="h-4 w-4" />
-              Original
-            </div>
-            <div className="text-lg font-semibold">
-              {formatFileSize(conversion.originalFileSize)}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {conversion.originalDimensions}
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <FileCode className="h-4 w-4" />
-              SVG
-            </div>
-            <div className="text-lg font-semibold">
-              {formatFileSize(conversion.svgFileSize)}
-            </div>
-            <div className="text-xs text-muted-foreground">Vector Format</div>
-          </div>
-        </div>
-
+      {/* Large Preview - No Card Wrapper */}
+      <div className="space-y-4">
         {/* Preview Tabs */}
         <Tabs
           value={activeTab}
@@ -137,117 +107,134 @@ export function SVGPreview({
               <FileCode className="h-4 w-4" />
               SVG
             </TabsTrigger>
-            <TabsTrigger
-              value="comparison"
-              className="flex items-center gap-2"
-            >
+            <TabsTrigger value="comparison" className="flex items-center gap-2">
               <Maximize2 className="h-4 w-4" />
               Compare
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="original" className="mt-4">
-            <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
+            <div className="relative w-full overflow-hidden rounded-xl border-2 bg-muted shadow-xl" style={{ minHeight: '70vh' }}>
               {originalPreviewUrl ? (
                 <img
                   src={originalPreviewUrl}
                   alt="Original"
-                  className="h-full w-full object-contain"
+                  className="h-full w-full object-contain p-4"
                 />
               ) : (
                 <img
                   src={conversion.originalImageUrl}
                   alt="Original"
-                  className="h-full w-full object-contain"
+                  className="h-full w-full object-contain p-4"
                   crossOrigin="anonymous"
                 />
               )}
             </div>
-            <p className="mt-2 text-center text-sm text-muted-foreground">
-              {conversion.originalFilename}
-            </p>
           </TabsContent>
 
           <TabsContent value="svg" className="mt-4">
-            <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
+            <div className="relative w-full overflow-hidden rounded-xl border-2 bg-muted shadow-xl" style={{ minHeight: '70vh' }}>
               <img
                 src={conversion.svgUrl}
                 alt="SVG Preview"
-                className="h-full w-full object-contain"
+                className="h-full w-full object-contain p-4"
                 crossOrigin="anonymous"
               />
             </div>
-            <p className="mt-2 text-center text-sm text-muted-foreground">
-              {conversion.svgFilename}
-            </p>
           </TabsContent>
 
           <TabsContent value="comparison" className="mt-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <div className="relative aspect-square w-full overflow-hidden rounded-lg border bg-muted">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <div className="relative w-full overflow-hidden rounded-xl border-2 bg-muted shadow-xl" style={{ minHeight: '60vh' }}>
                   {originalPreviewUrl ? (
                     <img
                       src={originalPreviewUrl}
                       alt="Original"
-                      className="h-full w-full object-contain"
+                      className="h-full w-full object-contain p-4"
                     />
                   ) : (
                     <img
                       src={conversion.originalImageUrl}
                       alt="Original"
-                      className="h-full w-full object-contain"
+                      className="h-full w-full object-contain p-4"
                       crossOrigin="anonymous"
                     />
                   )}
                 </div>
-                <Badge variant="outline" className="w-full justify-center">
-                  Original
-                </Badge>
+                <div className="text-center">
+                  <Badge variant="outline" className="text-sm py-1.5 px-4">
+                    Original
+                  </Badge>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="relative aspect-square w-full overflow-hidden rounded-lg border bg-muted">
+              <div className="space-y-3">
+                <div className="relative w-full overflow-hidden rounded-xl border-2 bg-muted shadow-xl" style={{ minHeight: '60vh' }}>
                   <img
                     src={conversion.svgUrl}
                     alt="SVG"
-                    className="h-full w-full object-contain"
+                    className="h-full w-full object-contain p-4"
                     crossOrigin="anonymous"
                   />
                 </div>
-                <Badge variant="outline" className="w-full justify-center">
-                  SVG
-                </Badge>
+                <div className="text-center">
+                  <Badge variant="outline" className="text-sm py-1.5 px-4">
+                    SVG
+                  </Badge>
+                </div>
               </div>
             </div>
           </TabsContent>
         </Tabs>
-      </CardContent>
 
-      <CardFooter className="flex flex-col gap-2 sm:flex-row">
-        <Button onClick={onDownload} className="flex-1 gap-2" size="lg">
-          <Download className="h-4 w-4" />
-          Download SVG
-        </Button>
-        <Button
-          variant="outline"
-          onClick={handleCopyCode}
-          className="flex-1 gap-2"
-          size="lg"
-        >
-          {copiedCode ? (
-            <>
-              <CheckCircle2 className="h-4 w-4" />
-              Copied!
-            </>
-          ) : (
-            <>
-              <Copy className="h-4 w-4" />
-              Copy SVG Code
-            </>
-          )}
-        </Button>
-      </CardFooter>
-    </Card>
+        {/* File Information - Below Preview */}
+        <div className="grid grid-cols-2 gap-4 rounded-lg border bg-card p-4">
+          <div className="flex items-center gap-3">
+            <FileImage className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <div className="text-sm font-medium text-muted-foreground">Original</div>
+              <div className="text-lg font-bold">{formatFileSize(conversion.originalFileSize)}</div>
+              <div className="text-xs text-muted-foreground">{conversion.originalDimensions}</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <FileCode className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <div className="text-sm font-medium text-muted-foreground">SVG</div>
+              <div className="text-lg font-bold">{formatFileSize(conversion.svgFileSize)}</div>
+              <div className="text-xs text-muted-foreground">Vector Format</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Button onClick={onDownload} className="flex-1 gap-2 h-12" size="lg">
+            <Download className="h-5 w-5" />
+            Download SVG
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleCopyCode}
+            className="flex-1 gap-2 h-12"
+            size="lg"
+          >
+            {copiedCode ? (
+              <>
+                <CheckCircle2 className="h-5 w-5" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="h-5 w-5" />
+                Copy SVG Code
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -177,12 +177,11 @@ export default function HistoryPage() {
     <div className="space-y-8">
       {/* Page Header */}
       <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <HistoryIcon className="h-8 w-8 text-primary" />
-            Conversion History
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            History
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             View and manage all your image conversions
           </p>
         </div>
