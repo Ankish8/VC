@@ -23,6 +23,11 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { EditorTool } from "./types";
 import { ToolSelector } from "./ToolSelector";
@@ -229,60 +234,88 @@ export function ToolsPanel({
 
       {/* Footer Actions */}
       <div className="border-t p-2.5 space-y-1.5 bg-muted/30">
-        <Button
-          className="w-full gap-2 h-9"
-          onClick={onDownload}
-          size="sm"
-        >
-          <Download className="h-3.5 w-3.5" />
-          Download SVG
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              className="w-full gap-2 h-9"
+              onClick={onDownload}
+              size="sm"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Download SVG
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="left">
+            <p>Download edited SVG file</p>
+          </TooltipContent>
+        </Tooltip>
 
         {onCopyCode && (
-          <Button
-            variant="outline"
-            className="w-full gap-2 h-9"
-            onClick={onCopyCode}
-            size="sm"
-          >
-            {copiedCode ? (
-              <>
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <Copy className="h-3.5 w-3.5" />
-                Copy Code
-              </>
-            )}
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full gap-2 h-9"
+                onClick={onCopyCode}
+                size="sm"
+              >
+                {copiedCode ? (
+                  <>
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5" />
+                    Copy Code
+                  </>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              <p>Copy SVG code to clipboard</p>
+            </TooltipContent>
+          </Tooltip>
         )}
 
         {hasChanges && (
-          <Button
-            variant="outline"
-            className="w-full gap-2 h-9"
-            onClick={onReset}
-            size="sm"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            Reset
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full gap-2 h-9"
+                onClick={onReset}
+                size="sm"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reset
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              <p>Discard all changes and reset to original</p>
+            </TooltipContent>
+          </Tooltip>
         )}
 
         {onConvertAnother && (
           <>
             <Separator className="my-1.5" />
-            <Button
-              variant="secondary"
-              className="w-full gap-2 h-9"
-              onClick={onConvertAnother}
-              size="sm"
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-              Convert Another
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="secondary"
+                  className="w-full gap-2 h-9"
+                  onClick={onConvertAnother}
+                  size="sm"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" />
+                  Convert Another
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                <p>Start a new conversion</p>
+              </TooltipContent>
+            </Tooltip>
           </>
         )}
       </div>

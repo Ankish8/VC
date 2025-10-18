@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ConversionResult } from "@/types";
 import { SVGEditorLayout } from "./editor/SVGEditorLayout";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { toast } from "sonner";
 
 interface SVGPreviewProps {
@@ -45,9 +46,10 @@ export function SVGPreview({
   };
 
   return (
-    <SVGEditorLayout
-      svgUrl={conversion.svgUrl}
-      originalImageUrl={originalPreviewUrl || conversion.originalImageUrl}
+    <ErrorBoundary>
+      <SVGEditorLayout
+        svgUrl={conversion.svgUrl}
+        originalImageUrl={originalPreviewUrl || conversion.originalImageUrl}
       filename={conversion.svgFilename}
       onDownload={(svgElement) => {
         const svgString = new XMLSerializer().serializeToString(svgElement);
@@ -75,5 +77,6 @@ export function SVGPreview({
       compressionRatio={calculateCompressionRatio()}
       className={className}
     />
+    </ErrorBoundary>
   );
 }

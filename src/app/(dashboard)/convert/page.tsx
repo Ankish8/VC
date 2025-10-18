@@ -9,6 +9,7 @@ import { SVGPreview } from "@/components/converter/SVGPreview";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ConversionResult } from "@/types";
+import { useClipboardPaste } from "@/hooks/useClipboardPaste";
 
 type WorkflowStage =
   | "idle"
@@ -41,15 +42,6 @@ export default function ConvertPage() {
   const [workflowStage, setWorkflowStage] = useState<WorkflowStage>("idle");
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<ConversionError | null>(null);
-
-  // Clean up preview URL on unmount
-  useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
 
   // Handle file selection
   const handleFileSelect = async (file: File) => {
@@ -239,6 +231,22 @@ export default function ConvertPage() {
   );
   const isCompleted = workflowStage === "completed";
   const isError = workflowStage === "error";
+
+  // Clean up preview URL on unmount
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  // Enable clipboard paste for images
+  useClipboardPaste({
+    onPaste: handleFileSelect,
+    enabled: !isConverting && !isCompleted,
+    acceptedFormats: ["image/png", "image/jpeg", "image/webp"],
+  });
 
   return (
     <div className="space-y-12">

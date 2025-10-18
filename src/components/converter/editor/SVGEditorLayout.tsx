@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Split } from "lucide-react";
+import { Split, Undo2, Redo2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EditorTool } from "./types";
 import { SVGCanvas } from "./SVGCanvas";
@@ -20,12 +20,40 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   extractSVGColors,
   replaceSVGColor,
   cloneSVGElement,
   ColorInfo,
 } from "@/lib/svg-utils";
 import { ColorPaletteOption } from "@/lib/color-palettes";
+import { useHistory } from "@/hooks/useHistory";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+
+// State that should be tracked in history
+interface EditorHistoryState {
+  svgString: string; // Serialized SVG for immutability
+  colors: ColorInfo[];
+}
+
+// Serialize SVG to string for storage
+function serializeSVG(element: SVGElement | null): string {
+  if (!element) return "";
+  return new XMLSerializer().serializeToString(element);
+}
+
+// Deserialize string back to SVG element
+function deserializeSVG(svgString: string): SVGElement | null {
+  if (!svgString) return null;
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(svgString, "image/svg+xml");
+  return doc.querySelector("svg");
+}
 
 interface SVGEditorLayoutProps {
   svgUrl: string;
@@ -57,13 +85,16 @@ export function SVGEditorLayout({
   compressionRatio,
   className,
 }: SVGEditorLayoutProps) {
+  // History management for undo/redo
+  const history = useHistory<EditorHistoryState>({
+    svgString: "",
+    colors: [],
+  });
+
   // Editor state
   const [activeTool, setActiveTool] = useState<EditorTool>("select");
-  const [svgElement, setSvgElement] = useState<SVGElement | null>(null);
   const [originalSvgElement, setOriginalSvgElement] = useState<SVGElement | null>(null);
-  const [colors, setColors] = useState<ColorInfo[]>([]);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const [hasChanges, setHasChanges] = useState(false);
   const [appliedPalette, setAppliedPalette] = useState<string | null>(null);
 
   // UI state
@@ -71,6 +102,24 @@ export function SVGEditorLayout({
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [newColor, setNewColor] = useState<string>("#000000");
   const [colorToEdit, setColorToEdit] = useState<string | null>(null);
+  const [isLoadingSVG, setIsLoadingSVG] = useState(true);
+
+  // Derived from history
+  const svgElement = deserializeSVG(history.state.svgString);
+  const colors = history.state.colors;
+  const hasChanges = history.canUndo;
+
+  // Helper to push new state to history
+  const updateSVGState = useCallback(
+    (newElement: SVGElement) => {
+      const newColors = extractSVGColors(newElement);
+      history.pushState({
+        svgString: serializeSVG(newElement),
+        colors: newColors,
+      });
+    },
+    [history]
+  );
 
   // Get cursor based on active tool
   const getCursor = () => {
@@ -87,6 +136,7 @@ export function SVGEditorLayout({
   // Load SVG
   useEffect(() => {
     const loadSVG = async () => {
+      setIsLoadingSVG(true);
       try {
         const response = await fetch(svgUrl);
         const svgText = await response.text();
@@ -97,16 +147,20 @@ export function SVGEditorLayout({
 
         if (svg) {
           const clonedSvg = cloneSVGElement(svg);
-          setSvgElement(clonedSvg);
           setOriginalSvgElement(cloneSVGElement(svg));
 
-          // Extract colors
-          const extractedColors = extractSVGColors(clonedSvg);
-          setColors(extractedColors);
+          // Initialize history with loaded SVG
+          const initialColors = extractSVGColors(clonedSvg);
+          history.reset({
+            svgString: serializeSVG(clonedSvg),
+            colors: initialColors,
+          });
         }
       } catch (error) {
         console.error("Failed to load SVG:", error);
         toast.error("Failed to load SVG");
+      } finally {
+        setIsLoadingSVG(false);
       }
     };
 
@@ -135,13 +189,13 @@ export function SVGEditorLayout({
       return;
     }
 
-    replaceSVGColor(svgElement, colorToEdit, newColor);
+    // Clone element to avoid mutating history
+    const newElement = cloneSVGElement(svgElement);
+    replaceSVGColor(newElement, colorToEdit, newColor);
 
-    // Re-extract colors
-    const updatedColors = extractSVGColors(svgElement);
-    setColors(updatedColors);
+    // Push to history
+    updateSVGState(newElement);
 
-    setHasChanges(true);
     setShowColorPicker(false);
     setColorToEdit(null);
 
@@ -152,21 +206,21 @@ export function SVGEditorLayout({
   const handleApplyPalette = (palette: ColorPaletteOption) => {
     if (!svgElement || colors.length === 0) return;
 
+    // Clone element to avoid mutating history
+    const newElement = cloneSVGElement(svgElement);
+
     // Map current colors to palette colors
     const sortedColors = [...colors].sort((a, b) => b.count - a.count);
     const paletteColors = palette.colors.slice(0, sortedColors.length);
 
     sortedColors.forEach((colorInfo, index) => {
       if (index < paletteColors.length) {
-        replaceSVGColor(svgElement, colorInfo.color, paletteColors[index]);
+        replaceSVGColor(newElement, colorInfo.color, paletteColors[index]);
       }
     });
 
-    // Re-extract colors
-    const updatedColors = extractSVGColors(svgElement);
-    setColors(updatedColors);
-
-    setHasChanges(true);
+    // Push to history
+    updateSVGState(newElement);
     setAppliedPalette(palette.name);
 
     toast.success(`Applied ${palette.name} palette`);
@@ -177,12 +231,14 @@ export function SVGEditorLayout({
     if (!originalSvgElement) return;
 
     const clonedOriginal = cloneSVGElement(originalSvgElement);
-    setSvgElement(clonedOriginal);
 
+    // Reset history to original
     const originalColors = extractSVGColors(clonedOriginal);
-    setColors(originalColors);
+    history.reset({
+      svgString: serializeSVG(clonedOriginal),
+      colors: originalColors,
+    });
 
-    setHasChanges(false);
     setAppliedPalette(null);
     setSelectedColor(null);
 
@@ -222,16 +278,42 @@ export function SVGEditorLayout({
     } else if (activeTool === "eraser") {
       // Background removal - make color transparent
       if (svgElement) {
-        replaceSVGColor(svgElement, color, "transparent");
-        const updatedColors = extractSVGColors(svgElement);
-        setColors(updatedColors);
-        setHasChanges(true);
+        const newElement = cloneSVGElement(svgElement);
+        replaceSVGColor(newElement, color, "transparent");
+        updateSVGState(newElement);
         toast.success("Color removed");
       }
     }
   };
 
-  // Keyboard shortcuts
+  // Undo/redo keyboard shortcuts
+  useKeyboardShortcuts([
+    {
+      key: "z",
+      ctrl: true,
+      handler: () => {
+        if (history.canUndo) {
+          history.undo();
+          toast.success("Undone");
+        }
+      },
+      description: "Undo",
+    },
+    {
+      key: "z",
+      ctrl: true,
+      shift: true,
+      handler: () => {
+        if (history.canRedo) {
+          history.redo();
+          toast.success("Redone");
+        }
+      },
+      description: "Redo",
+    },
+  ]);
+
+  // Tool keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
@@ -260,9 +342,10 @@ export function SVGEditorLayout({
   }, []);
 
   return (
-    <div className={cn("flex w-full bg-background", className)} style={{ height: 'calc(100vh - 200px)' }}>
-      {/* Main Canvas Area (80%) */}
-      <div className="flex-1 relative flex flex-col">
+    <TooltipProvider>
+      <div className={cn("flex w-full bg-background", className)} style={{ height: 'calc(100vh - 200px)' }}>
+        {/* Main Canvas Area (80%) */}
+        <div className="flex-1 relative flex flex-col">
         {/* Top Toolbar */}
         <div className="border-b p-2 flex items-center justify-between bg-muted/30">
           <div className="flex items-center gap-2">
@@ -276,16 +359,66 @@ export function SVGEditorLayout({
             )}
           </div>
           <div className="flex items-center gap-2">
+            {/* Undo/Redo Buttons */}
+            <div className="flex items-center gap-1 mr-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      history.undo();
+                      toast.success("Undone");
+                    }}
+                    disabled={!history.canUndo}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Undo2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Undo (Cmd+Z)</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      history.redo();
+                      toast.success("Redone");
+                    }}
+                    disabled={!history.canRedo}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Redo2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Redo (Cmd+Shift+Z)</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+
             {originalImageUrl && (
-              <Button
-                variant={showComparison ? "default" : "outline"}
-                size="sm"
-                onClick={() => setShowComparison(!showComparison)}
-                className="gap-2"
-              >
-                <Split className="h-4 w-4" />
-                {showComparison ? "Hide" : "Show"} Comparison
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={showComparison ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setShowComparison(!showComparison)}
+                    className="gap-2"
+                  >
+                    <Split className="h-4 w-4" />
+                    {showComparison ? "Hide" : "Show"} Comparison
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Compare original image with SVG side-by-side</p>
+                </TooltipContent>
+              </Tooltip>
             )}
           </div>
         </div>
@@ -304,13 +437,15 @@ export function SVGEditorLayout({
               onElementClick={handleElementClick}
               showGrid={true}
               cursor={getCursor()}
+              isLoading={isLoadingSVG}
+              loadingMessage="Loading SVG editor..."
             />
           )}
         </div>
       </div>
 
       {/* Tools Panel (28%) */}
-      <ToolsPanel
+        <ToolsPanel
         activeTool={activeTool}
         onToolChange={setActiveTool}
         colors={colors}
@@ -408,5 +543,6 @@ export function SVGEditorLayout({
         </DialogContent>
       </Dialog>
     </div>
-  );
+  </TooltipProvider>
+);
 }

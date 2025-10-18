@@ -1,14 +1,15 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, ImagePlus, X, AlertCircle } from "lucide-react";
+import { Upload, ImagePlus, X, AlertCircle, Clipboard } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { IMAGE_CONSTRAINTS } from "@/types";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface ImageUploadProps {
   onFileSelect: (file: File) => void;
@@ -27,29 +28,64 @@ export function ImageUpload({
   previewUrl,
   error,
 }: ImageUploadProps) {
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   const validateFile = useCallback((file: File): string | null => {
     // Check file type
     if (!IMAGE_CONSTRAINTS.ALLOWED_FORMATS.includes(file.type as typeof IMAGE_CONSTRAINTS.ALLOWED_FORMATS[number])) {
-      return `Please upload a valid image file (${IMAGE_CONSTRAINTS.ALLOWED_EXTENSIONS.join(", ")})`;
+      return `Invalid file type. Please upload ${IMAGE_CONSTRAINTS.ALLOWED_EXTENSIONS.join(", ")} files only.`;
     }
 
     // Check file size
     if (file.size > IMAGE_CONSTRAINTS.MAX_SIZE) {
       const maxSizeMB = IMAGE_CONSTRAINTS.MAX_SIZE / (1024 * 1024);
-      return `File size must be less than ${maxSizeMB}MB`;
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      return `File size (${fileSizeMB}MB) exceeds maximum limit of ${maxSizeMB}MB. Please choose a smaller file.`;
+    }
+
+    // Check minimum file size (prevent 0 byte files)
+    if (file.size === 0) {
+      return `File appears to be empty. Please choose a valid image file.`;
     }
 
     return null;
   }, []);
 
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+    (acceptedFiles: File[], rejectedFiles: any[]) => {
+      // Clear previous validation errors
+      setValidationError(null);
+
+      // Handle rejected files first
+      if (rejectedFiles.length > 0) {
+        const rejection = rejectedFiles[0];
+        let errorMessage = "File rejected. ";
+
+        if (rejection.errors) {
+          const errorCodes = rejection.errors.map((e: any) => e.code);
+
+          if (errorCodes.includes("file-too-large")) {
+            const maxSizeMB = IMAGE_CONSTRAINTS.MAX_SIZE / (1024 * 1024);
+            errorMessage = `File is too large. Maximum size is ${maxSizeMB}MB.`;
+          } else if (errorCodes.includes("file-invalid-type")) {
+            errorMessage = `Invalid file type. Please upload ${IMAGE_CONSTRAINTS.ALLOWED_EXTENSIONS.join(", ")} files only.`;
+          } else if (errorCodes.includes("too-many-files")) {
+            errorMessage = "Please upload only one file at a time.";
+          }
+        }
+
+        setValidationError(errorMessage);
+        toast.error(errorMessage);
+        return;
+      }
+
       if (acceptedFiles.length > 0) {
         const file = acceptedFiles[0];
-        const validationError = validateFile(file);
+        const validationErr = validateFile(file);
 
-        if (validationError) {
-          // Error will be handled by parent component
+        if (validationErr) {
+          setValidationError(validationErr);
+          toast.error(validationErr);
           return;
         }
 
@@ -171,9 +207,14 @@ export function ImageUpload({
             <Badge variant="outline" className="font-normal text-xs px-3 py-1">WEBP</Badge>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            Maximum {IMAGE_CONSTRAINTS.MAX_SIZE / (1024 * 1024)}MB
-          </p>
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <span>Maximum {IMAGE_CONSTRAINTS.MAX_SIZE / (1024 * 1024)}MB</span>
+            <span>•</span>
+            <div className="flex items-center gap-1.5">
+              <Clipboard className="h-3 w-3" />
+              <span>or paste (Cmd+V)</span>
+            </div>
+          </div>
         </div>
 
         {isDragReject && (
@@ -186,10 +227,10 @@ export function ImageUpload({
         )}
       </div>
 
-      {error && (
+      {(error || validationError) && (
         <Alert variant="destructive" className="mt-4">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>{error || validationError}</AlertDescription>
         </Alert>
       )}
     </div>

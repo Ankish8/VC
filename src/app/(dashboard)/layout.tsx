@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Navbar } from "@/components/layout/Navbar";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -20,7 +21,9 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
       {/* Main Content Area - Match Header Width */}
       <main className="flex-1 w-full">
         <div className="container mx-auto px-4 py-12 md:py-16">
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
         </div>
       </main>
     </div>

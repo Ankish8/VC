@@ -5,6 +5,12 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Button } from "@/components/ui/button";
 import { ZoomIn, ZoomOut, Maximize2, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SVGCanvasSkeleton } from "./SVGCanvasSkeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SVGCanvasProps {
   svgElement: SVGElement | null;
@@ -12,6 +18,8 @@ interface SVGCanvasProps {
   onElementClick?: (element: SVGElement, color: string) => void;
   showGrid?: boolean;
   cursor?: string;
+  isLoading?: boolean;
+  loadingMessage?: string;
 }
 
 export function SVGCanvas({
@@ -20,6 +28,8 @@ export function SVGCanvas({
   onElementClick,
   showGrid = false,
   cursor = "default",
+  isLoading = false,
+  loadingMessage,
 }: SVGCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
@@ -41,6 +51,11 @@ export function SVGCanvas({
     }
   };
 
+  // Show skeleton while loading
+  if (isLoading) {
+    return <SVGCanvasSkeleton className={className} message={loadingMessage} />;
+  }
+
   return (
     <div className={cn("relative w-full h-full bg-muted/30", className)}>
       <TransformWrapper
@@ -54,49 +69,78 @@ export function SVGCanvas({
           <>
             {/* Zoom Controls */}
             <div className="absolute top-4 right-4 z-10 flex flex-col gap-1 bg-background/95 border rounded-lg p-1 shadow-lg">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => zoomIn()}
-                className="h-8 w-8"
-                title="Zoom In (+)"
-              >
-                <ZoomIn className="h-4 w-4" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => zoomIn()}
+                    className="h-8 w-8"
+                  >
+                    <ZoomIn className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="left">
+                  <p>Zoom In (+)</p>
+                </TooltipContent>
+              </Tooltip>
+
               <div className="px-2 py-1 text-xs font-medium text-center">
                 {Math.round(zoom * 100)}%
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => zoomOut()}
-                className="h-8 w-8"
-                title="Zoom Out (-)"
-              >
-                <ZoomOut className="h-4 w-4" />
-              </Button>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => zoomOut()}
+                    className="h-8 w-8"
+                  >
+                    <ZoomOut className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="left">
+                  <p>Zoom Out (-)</p>
+                </TooltipContent>
+              </Tooltip>
+
               <div className="h-px bg-border my-1" />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  resetTransform();
-                  centerView();
-                }}
-                className="h-8 w-8"
-                title="Reset View (0)"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => centerView(1)}
-                className="h-8 w-8"
-                title="Fit to Screen"
-              >
-                <Maximize2 className="h-4 w-4" />
-              </Button>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      resetTransform();
+                      centerView();
+                    }}
+                    className="h-8 w-8"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="left">
+                  <p>Reset View (0)</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => centerView(1)}
+                    className="h-8 w-8"
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="left">
+                  <p>Fit to Screen</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
 
             {/* Canvas */}

@@ -4,6 +4,11 @@ import { Button } from "@/components/ui/button";
 import { EditorTool } from "./types";
 import { MousePointer, Pipette, Scissors } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ToolSelectorProps {
   activeTool: EditorTool;
@@ -61,36 +66,41 @@ export function ToolSelector({
           const isActive = activeTool === tool.id;
 
           return (
-            <Button
-              key={tool.id}
-              variant={isActive ? "default" : "ghost"}
-              className={cn(
-                "w-full justify-start gap-3 h-auto py-3 px-3",
-                isActive && "shadow-sm"
-              )}
-              onClick={() => onToolChange(tool.id)}
-              disabled={disabled}
-              title={`${tool.description} (${tool.shortcut})`}
-            >
-              <Icon className={cn("h-5 w-5", isActive && "text-primary-foreground")} />
-              <div className="flex-1 text-left">
-                <div className={cn("font-medium text-sm", isActive && "text-primary-foreground")}>
-                  {tool.label}
-                </div>
-                <div className={cn(
-                  "text-xs text-muted-foreground",
-                  isActive && "text-primary-foreground/80"
-                )}>
-                  {tool.description}
-                </div>
-              </div>
-              <kbd className={cn(
-                "hidden sm:inline-block px-2 py-1 text-xs font-mono bg-muted rounded",
-                isActive && "bg-primary-foreground/20 text-primary-foreground"
-              )}>
-                {tool.shortcut}
-              </kbd>
-            </Button>
+            <Tooltip key={tool.id}>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={isActive ? "default" : "ghost"}
+                  className={cn(
+                    "w-full justify-start gap-3 h-auto py-3 px-3",
+                    isActive && "shadow-sm"
+                  )}
+                  onClick={() => onToolChange(tool.id)}
+                  disabled={disabled}
+                >
+                  <Icon className={cn("h-5 w-5", isActive && "text-primary-foreground")} />
+                  <div className="flex-1 text-left">
+                    <div className={cn("font-medium text-sm", isActive && "text-primary-foreground")}>
+                      {tool.label}
+                    </div>
+                    <div className={cn(
+                      "text-xs text-muted-foreground",
+                      isActive && "text-primary-foreground/80"
+                    )}>
+                      {tool.description}
+                    </div>
+                  </div>
+                  <kbd className={cn(
+                    "hidden sm:inline-block px-2 py-1 text-xs font-mono bg-muted rounded",
+                    isActive && "bg-primary-foreground/20 text-primary-foreground"
+                  )}>
+                    {tool.shortcut}
+                  </kbd>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Keyboard shortcut: {tool.shortcut}</p>
+              </TooltipContent>
+            </Tooltip>
           );
         })}
       </div>
