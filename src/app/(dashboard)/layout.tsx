@@ -17,9 +17,9 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
       {/* Navigation Bar */}
       <Navbar />
 
-      {/* Main Content Area - Centered */}
-      <main className="flex-1 flex items-start justify-center">
-        <div className="w-full max-w-6xl px-4 py-12 md:py-16">
+      {/* Main Content Area - Match Header Width */}
+      <main className="flex-1 w-full">
+        <div className="container mx-auto px-4 py-12 md:py-16">
           {children}
         </div>
       </main>

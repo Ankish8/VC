@@ -259,24 +259,14 @@ export default function ConvertPage() {
 
       {/* Main Content Area */}
       {isCompleted && conversion ? (
-        /* Centered Preview after Conversion */
-        <div className="max-w-4xl mx-auto mt-0">
+        /* Full Width Professional Editor */
+        <div className="w-full">
           <SVGPreview
             conversion={conversion}
             originalPreviewUrl={previewUrl || undefined}
             onDownload={handleDownload}
+            onConvertAnother={handleConvertAnother}
           />
-          <div className="mt-8 flex justify-center">
-            <Button
-              onClick={handleConvertAnother}
-              variant="outline"
-              size="lg"
-              className="px-8"
-            >
-              <RefreshCw className="mr-2 h-5 w-5" />
-              Convert Another Image
-            </Button>
-          </div>
         </div>
       ) : (
         <div className="grid gap-8 lg:grid-cols-2">
