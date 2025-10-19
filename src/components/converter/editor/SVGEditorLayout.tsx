@@ -405,9 +405,9 @@ export function SVGEditorLayout({
 
   return (
     <TooltipProvider>
-      <div className={cn("flex w-full bg-background", className)} style={{ height: 'calc(100vh - 200px)' }}>
+      <div className={cn("flex w-full h-[calc(100vh-4rem)] bg-background", className)}>
         {/* Main Canvas Area (80%) */}
-        <div className="flex-1 relative flex flex-col">
+        <div className="flex-1 relative flex flex-col overflow-hidden">
         {/* Top Toolbar */}
         <div className="border-b p-2 flex items-center justify-between bg-muted/30">
           <div className="flex items-center gap-2">
@@ -486,7 +486,7 @@ export function SVGEditorLayout({
         </div>
 
         {/* Canvas */}
-        <div className="flex-1 relative" data-tour="canvas">
+        <div className="flex-1 relative overflow-hidden" data-tour="canvas">
           {showComparison && originalImageUrl ? (
             <ComparisonView
               originalImageUrl={originalImageUrl}

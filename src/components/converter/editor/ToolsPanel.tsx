@@ -107,14 +107,14 @@ export function ToolsPanel({
   };
 
   return (
-    <div className={cn("relative flex flex-col bg-card border-l", className)}>
+    <div className={cn("relative flex flex-col h-full overflow-hidden bg-card border-l", className)}>
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2.5 border-b bg-muted/30">
         <h3 className="font-semibold text-sm">Editor Panel</h3>
       </div>
 
       {/* Tabbed Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
         <TabsList className="grid w-full grid-cols-3 mx-3 mt-2">
           <TabsTrigger value="tools" className="text-xs gap-1" data-tour="tools">
             <Wrench className="h-3 w-3" />
@@ -131,7 +131,7 @@ export function ToolsPanel({
         </TabsList>
 
         {/* Tools Tab */}
-        <TabsContent value="tools" className="flex-1 mt-0 data-[state=inactive]:hidden">
+        <TabsContent value="tools" className="flex-1 mt-0 data-[state=inactive]:hidden overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-3 space-y-3">
               <ToolSelector
@@ -143,7 +143,7 @@ export function ToolsPanel({
         </TabsContent>
 
         {/* Colors Tab - Combined with Reduction */}
-        <TabsContent value="colors" className="flex-1 mt-0 data-[state=inactive]:hidden">
+        <TabsContent value="colors" className="flex-1 mt-0 data-[state=inactive]:hidden overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-3 space-y-4">
               {/* Color Reduction Section */}
@@ -176,7 +176,7 @@ export function ToolsPanel({
         </TabsContent>
 
         {/* Info Tab */}
-        <TabsContent value="info" className="flex-1 mt-0 data-[state=inactive]:hidden">
+        <TabsContent value="info" className="flex-1 mt-0 data-[state=inactive]:hidden overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-3 space-y-3">
               {/* Compression Ratio */}
