@@ -142,9 +142,11 @@ export function SVGEditorLayout({
   const getCursor = () => {
     switch (activeTool) {
       case "colorReplace":
-        return "crosshair";
+        // Custom eyedropper/color picker cursor with white outline for visibility
+        return `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cg%3E%3Cpath d='m2 22 1-1h3l9-9' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M3 21v-3l9-9' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='m2 22 1-1h3l9-9' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M3 21v-3l9-9' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/g%3E%3C/svg%3E") 0 24, crosshair`;
       case "eraser":
-        return "not-allowed";
+        // Custom scissors cursor with white outline for visibility
+        return `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cg%3E%3Ccircle cx='4' cy='4' r='2.5' stroke='white' stroke-width='2.5' fill='white'/%3E%3Ccircle cx='4' cy='16' r='2.5' stroke='white' stroke-width='2.5' fill='white'/%3E%3Cpath d='M6 5 L12 10 L18 2' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M6 15 L12 10 L18 18' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='10' r='1.5' fill='white'/%3E%3Ccircle cx='4' cy='4' r='2.5' stroke='%23333' stroke-width='1.2' fill='none'/%3E%3Ccircle cx='4' cy='16' r='2.5' stroke='%23333' stroke-width='1.2' fill='none'/%3E%3Cpath d='M6 5 L12 10 L18 2' stroke='%23333' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M6 15 L12 10 L18 18' stroke='%23333' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='10' r='1' fill='%23333'/%3E%3C/g%3E%3C/svg%3E") 10 10, not-allowed`;
       default:
         return "default";
     }
