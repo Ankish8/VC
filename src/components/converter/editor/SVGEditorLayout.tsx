@@ -105,6 +105,7 @@ export function SVGEditorLayout({
     completeOnboarding,
     skipOnboarding,
     closeTour,
+    restartTour,
   } = useOnboarding();
 
   // Editor state
@@ -525,6 +526,7 @@ export function SVGEditorLayout({
         onDownload={handleDownload}
         onCopyCode={onCopyCode}
         onConvertAnother={onConvertAnother}
+        onStartTour={restartTour}
         copiedCode={copiedCode}
         originalFileSize={originalFileSize}
         svgFileSize={svgFileSize}

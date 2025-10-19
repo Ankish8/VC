@@ -51,6 +51,7 @@ interface ToolsPanelProps {
   onDownload: () => void;
   onCopyCode?: () => void;
   onConvertAnother?: () => void;
+  onStartTour?: () => void;
   copiedCode?: boolean;
   // File info
   originalFileSize?: number;
@@ -76,6 +77,7 @@ export function ToolsPanel({
   onDownload,
   onCopyCode,
   onConvertAnother,
+  onStartTour,
   copiedCode,
   originalFileSize,
   svgFileSize,
@@ -243,6 +245,30 @@ export function ToolsPanel({
                   </div>
                 </div>
               </div>
+
+              {/* Help & Tutorial */}
+              {onStartTour && (
+                <>
+                  <Separator />
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-semibold text-muted-foreground">
+                      Help & Tutorial
+                    </h4>
+                    <Button
+                      variant="outline"
+                      className="w-full gap-2 h-9"
+                      onClick={onStartTour}
+                      size="sm"
+                    >
+                      <Info className="h-3.5 w-3.5" />
+                      Start Interactive Tour
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      Take a guided tour of the editor features
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </ScrollArea>
         </TabsContent>
