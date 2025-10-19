@@ -249,7 +249,7 @@ export default function ConvertPage() {
   });
 
   return (
-    <div className="space-y-12">
+    <div className={isCompleted ? "" : "space-y-12"}>
       {/* Page Header - Hero Style - Hide when completed */}
       {!isCompleted && (
         <div className="text-center space-y-4">
@@ -268,7 +268,7 @@ export default function ConvertPage() {
       {/* Main Content Area */}
       {isCompleted && conversion ? (
         /* Full Width Professional Editor */
-        <div className="w-full">
+        <div className="w-full -mt-12 md:-mt-16">
           <SVGPreview
             conversion={conversion}
             originalPreviewUrl={previewUrl || undefined}
