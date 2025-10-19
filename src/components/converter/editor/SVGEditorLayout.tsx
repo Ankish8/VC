@@ -405,7 +405,7 @@ export function SVGEditorLayout({
 
   return (
     <TooltipProvider>
-      <div className={cn("flex w-full h-[calc(100vh-4rem)] bg-background", className)}>
+      <div className={cn("flex w-full h-full bg-background", className)}>
         {/* Main Canvas Area (80%) */}
         <div className="flex-1 relative flex flex-col overflow-hidden">
         {/* Top Toolbar */}

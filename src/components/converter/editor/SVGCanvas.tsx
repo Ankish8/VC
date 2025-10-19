@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Button } from "@/components/ui/button";
-import { ZoomIn, ZoomOut, Maximize2, RotateCcw } from "lucide-react";
+import { ZoomIn, ZoomOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SVGCanvasSkeleton } from "./SVGCanvasSkeleton";
 import {
@@ -59,11 +59,15 @@ export function SVGCanvas({
   return (
     <div className={cn("relative w-full h-full bg-muted/30", className)}>
       <TransformWrapper
-        initialScale={1}
-        minScale={1}
+        initialScale={0.8}
+        minScale={0.8}
         maxScale={5}
         wheel={{ step: 0.1 }}
         onZoom={(ref) => setZoom(ref.state.scale)}
+        centerOnInit={true}
+        alignmentAnimation={{ disabled: false }}
+        initialPositionX={0}
+        initialPositionY={0}
       >
         {({ zoomIn, zoomOut, resetTransform, centerView }) => (
           <>
@@ -104,55 +108,18 @@ export function SVGCanvas({
                   <p>Zoom Out (-)</p>
                 </TooltipContent>
               </Tooltip>
-
-              <div className="h-px bg-border my-1" />
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      resetTransform();
-                      centerView();
-                    }}
-                    className="h-8 w-8"
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="left">
-                  <p>Reset View (0)</p>
-                </TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => centerView(1)}
-                    className="h-8 w-8"
-                  >
-                    <Maximize2 className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="left">
-                  <p>Fit to Screen</p>
-                </TooltipContent>
-              </Tooltip>
             </div>
 
             {/* Canvas */}
             <TransformComponent
-              wrapperClass="!w-full !h-full"
-              contentClass="!w-full !h-full flex items-center justify-center"
+              wrapperClass="!w-full !h-full flex items-start justify-center pt-4"
+              contentClass="flex items-center justify-center"
             >
               <div
                 ref={containerRef}
                 onClick={handleSvgClick}
                 className={cn(
-                  "relative inline-block max-w-full max-h-full",
+                  "relative inline-block",
                   showGrid && "bg-[linear-gradient(rgba(0,0,0,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,.05)_1px,transparent_1px)] bg-[size:20px_20px]"
                 )}
                 style={{ cursor }}

@@ -241,6 +241,16 @@ export default function ConvertPage() {
     };
   }, [previewUrl]);
 
+  // Prevent body scroll when editor is active
+  useEffect(() => {
+    if (isCompleted) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [isCompleted]);
+
   // Enable clipboard paste for images
   useClipboardPaste({
     onPaste: handleFileSelect,
@@ -249,7 +259,7 @@ export default function ConvertPage() {
   });
 
   return (
-    <div className={isCompleted ? "" : "space-y-12"}>
+    <div className={isCompleted ? "overflow-hidden -mx-4 -my-12 md:-my-16" : "space-y-12"}>
       {/* Page Header - Hero Style - Hide when completed */}
       {!isCompleted && (
         <div className="text-center space-y-4">
@@ -268,7 +278,7 @@ export default function ConvertPage() {
       {/* Main Content Area */}
       {isCompleted && conversion ? (
         /* Full Width Professional Editor */
-        <div className="w-full -mt-12 md:-mt-16">
+        <div className="w-full h-[calc(100vh-3.5rem)]">
           <SVGPreview
             conversion={conversion}
             originalPreviewUrl={previewUrl || undefined}
