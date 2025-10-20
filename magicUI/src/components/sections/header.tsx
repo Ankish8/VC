@@ -32,7 +32,7 @@ export default function Header() {
   return (
     <header
       className={
-        "sticky top-0 z-50 py-2 bg-background/60 backdrop-blur"
+        "sticky top-0 z-50 py-2 bg-white/60 backdrop-blur"
       }
       style={{ top: '64px' }}
     >
@@ -64,7 +64,7 @@ export default function Header() {
                 href="/buy"
                 className={cn(
                   buttonVariants({ variant: "default" }),
-                  "w-full sm:w-auto text-background flex gap-2 bg-black hover:bg-gray-800"
+                  "w-full sm:w-auto text-white flex gap-2 bg-black hover:bg-gray-800"
                 )}
               >
                 <Icons.logo className="h-6 w-6" />

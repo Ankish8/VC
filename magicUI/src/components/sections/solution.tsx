@@ -102,7 +102,7 @@ export default function Component() {
       title="Advanced Features"
       subtitle="Professional Vector Conversion Technology"
       description="Experience the world's most advanced vectorization engine. Our AI-powered platform delivers professional-grade results with breakthrough technology that sets new industry standards."
-      className="bg-neutral-100 dark:bg-neutral-900"
+      className="bg-neutral-100"
     >
       <div className="mx-auto mt-16 grid max-w-sm grid-cols-1 gap-6 text-gray-500 md:max-w-3xl md:grid-cols-2 xl:grid-rows-2 md:grid-rows-3 xl:max-w-6xl xl:auto-rows-fr xl:grid-cols-3">
         {features.map((feature, index) => {
@@ -111,7 +111,7 @@ export default function Component() {
             <motion.div
               key={index}
               className={cn(
-                "group relative items-start overflow-hidden bg-neutral-50 dark:bg-neutral-800 p-6 rounded-2xl",
+                "group relative items-start overflow-hidden bg-neutral-50 p-6 rounded-2xl",
                 feature.className
               )}
               initial={{ opacity: 0, y: 50 }}
@@ -130,14 +130,14 @@ export default function Component() {
                   <div className="p-2 rounded-xl bg-primary/10 text-primary">
                     <IconComponent className="w-5 h-5" />
                   </div>
-                  <h3 className="font-semibold text-primary">
+                  <h3 className="font-semibold text-blue-600">
                     {feature.title}
                   </h3>
                 </div>
-                <p className="text-foreground leading-relaxed">{feature.description}</p>
+                <p className="text-gray-800 leading-relaxed">{feature.description}</p>
               </div>
               {feature.content}
-              <div className="absolute bottom-0 left-0 h-32 w-full bg-gradient-to-t from-neutral-50 dark:from-neutral-900 pointer-events-none"></div>
+              <div className="absolute bottom-0 left-0 h-32 w-full bg-gradient-to-t from-neutral-50 pointer-events-none"></div>
             </motion.div>
           );
         })}

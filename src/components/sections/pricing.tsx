@@ -79,8 +79,8 @@ export default function PricingSection() {
               delay: index * 0.1,
             }}
             className={cn(
-              `rounded-2xl border-[1px] p-6 bg-background text-center flex flex-col justify-between relative h-full`,
-              plan.isPopular ? "border-primary border-[2px]" : "border-border"
+              `rounded-2xl border-[1px] p-6 bg-white text-center flex flex-col justify-between relative h-full`,
+              plan.isPopular ? "border-primary border-[2px]" : "border-gray-200"
             )}
           >
             {plan.isPopular && (
@@ -92,21 +92,21 @@ export default function PricingSection() {
               </div>
             )}
             <div>
-              <p className="text-base font-semibold text-muted-foreground">
+              <p className="text-base font-semibold text-gray-600">
                 {plan.name}
               </p>
               <p className="mt-6 flex items-center justify-center gap-x-2">
-                <span className="text-5xl font-bold tracking-tight text-foreground">
+                <span className="text-5xl font-bold tracking-tight text-gray-900">
                   {isMonthly ? plan.price : plan.yearlyPrice}
                 </span>
                 {plan.period !== "Next 3 months" && (
-                  <span className="text-sm font-semibold leading-6 tracking-wide text-muted-foreground">
+                  <span className="text-sm font-semibold leading-6 tracking-wide text-gray-600">
                     / {plan.period}
                   </span>
                 )}
               </p>
 
-              <p className="text-xs leading-5 text-muted-foreground">
+              <p className="text-xs leading-5 text-gray-600">
                 {plan.period === "lifetime" ? "one-time payment" : isMonthly ? "billed monthly" : "billed annually"}
               </p>
 
@@ -168,7 +168,7 @@ export default function PricingSection() {
                   {plan.buttonText}
                 </Link>
               )}
-              <p className="mt-6 text-xs leading-5 text-muted-foreground">
+              <p className="mt-6 text-xs leading-5 text-gray-600">
                 {plan.description}
               </p>
             </div>

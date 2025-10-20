@@ -71,17 +71,17 @@ export default function Component() {
         {features.map((feature, index) => (
           <div
             key={index}
-            className="group relative bg-background border border-border rounded-lg p-6 hover:shadow-lg hover:border-primary/20 transition-all duration-300"
+            className="group relative bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-primary/20 transition-all duration-300"
           >            
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/15 transition-colors duration-200">
                 {feature.icon}
               </div>
-              <h3 className="font-semibold text-lg text-foreground">
+              <h3 className="font-semibold text-lg text-gray-900">
                 {feature.title}
               </h3>
             </div>
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-gray-600 leading-relaxed">
               {feature.description}
             </p>
           </div>

@@ -47,6 +47,41 @@ html {
     --color-5: #FFEAA7;
   }
 
+  /* FORCE LIGHT MODE FOR LANDING PAGE - Override dark mode */
+  .dark.landing-page,
+  html.dark .landing-page,
+  html[data-theme="dark"] .landing-page {
+    --background: 0 0% 100% !important;
+    --foreground: 222.2 84% 4.9% !important;
+    --card: 0 0% 100% !important;
+    --card-foreground: 222.2 84% 4.9% !important;
+    --popover: 0 0% 100% !important;
+    --popover-foreground: 222.2 84% 4.9% !important;
+    --primary: 221.2 83.2% 53.3% !important;
+    --primary-foreground: 210 40% 98% !important;
+    --secondary: 210 40% 96.1% !important;
+    --secondary-foreground: 222.2 47.4% 11.2% !important;
+    --muted: 210 40% 96.1% !important;
+    --muted-foreground: 215.4 16.3% 46.9% !important;
+    --accent: 210 40% 96.1% !important;
+    --accent-foreground: 222.2 47.4% 11.2% !important;
+    --destructive: 0 84.2% 60.2% !important;
+    --destructive-foreground: 210 40% 98% !important;
+    --border: 214.3 31.8% 91.4% !important;
+    --input: 214.3 31.8% 91.4% !important;
+    --ring: 221.2 83.2% 53.3% !important;
+
+    --chart-1: 220 70% 50% !important;
+    --chart-2: 160 60% 45% !important;
+    --chart-3: 30 80% 55% !important;
+    --chart-4: 280 65% 60% !important;
+    --chart-5: 340 75% 55% !important;
+
+    background-color: white !important;
+    color: hsl(222.2 84% 4.9%) !important;
+  }
+
+  /* Keep dashboard dark mode support */
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -219,5 +254,32 @@ html {
       rgba(80, 70, 230, 0.05) 0%,
       rgba(158, 122, 255, 0.03) 50%,
       rgba(254, 139, 187, 0.05) 100%);
+  }
+
+  /* Marquee animations for testimonials */
+  .animate-marquee {
+    animation: marquee var(--duration, 40s) linear infinite;
+  }
+
+  .animate-marquee-vertical {
+    animation: marquee-vertical var(--duration, 40s) linear infinite;
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
   }
 }

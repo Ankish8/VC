@@ -28,7 +28,7 @@ export default function Footer() {
                   <li key={linkIndex} className="my-2">
                     <Link
                       href={link.href}
-                      className="group inline-flex cursor-pointer items-center justify-start gap-1 text-muted-foreground duration-200 hover:text-foreground hover:opacity-90"
+                      className="group inline-flex cursor-pointer items-center justify-start gap-1 text-gray-600 duration-200 hover:text-gray-900 hover:opacity-90"
                       onClick={link.href.startsWith('#') ? handleSmoothScroll : undefined}
                     >
                       {link.icon && link.icon}
@@ -42,14 +42,14 @@ export default function Footer() {
           ))}
         </div>
         <div className="max-w-6xl mx-auto border-t py-2 grid md:grid-cols-2 h-full justify-between w-full grid-cols-1 gap-1">
-          <span className="text-sm tracking-tight text-foreground">
+          <span className="text-sm tracking-tight text-gray-900">
             Copyright © {new Date().getFullYear()}{" "}
             <Link href="/" className="cursor-pointer">
               {siteConfig.name}
             </Link>{" "}
             - {siteConfig.description}
           </span>
-          <ul className="flex justify-start md:justify-end text-sm tracking-tight text-foreground">
+          <ul className="flex justify-start md:justify-end text-sm tracking-tight text-gray-900">
             <li className="mr-3 md:mx-4">
               <Link href="/privacy">
                 Privacy Policy

@@ -11,24 +11,27 @@ import Solution from "@/components/sections/solution";
 import Testimonials from "@/components/sections/testimonials";
 import UrgencyBanner from "@/components/sections/urgency-banner";
 import { PaymentSuccessBanner } from "@/components/PaymentSuccessBanner";
+import { LandingPageWrapper } from "@/components/LandingPageWrapper";
 
 export default function Home() {
   return (
-    <main>
-      <Suspense fallback={null}>
-        <PaymentSuccessBanner />
-      </Suspense>
-      <Header />
-      <UrgencyBanner />
-      <Hero />
-      <Problem />
-      <Solution />
-      <HowItWorks />
-      <Features />
-      <Testimonials />
-      <Pricing />
-      <FAQ />
-      <Footer />
-    </main>
+    <LandingPageWrapper>
+      <main>
+        <Suspense fallback={null}>
+          <PaymentSuccessBanner />
+        </Suspense>
+        <Header />
+        <UrgencyBanner />
+        <Hero />
+        <Problem />
+        <Solution />
+        <HowItWorks />
+        <Features />
+        <Testimonials />
+        <Pricing />
+        <FAQ />
+        <Footer />
+      </main>
+    </LandingPageWrapper>
   );
 }

@@ -40,13 +40,13 @@ export default function Component() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
         {useCases.map((useCase, index) => (
           <BlurFade key={index} delay={0.2 + index * 0.2} inView>
-            <Card className="bg-background border-none shadow-none">
+            <Card className="bg-white border-none shadow-none">
               <CardContent className="p-6 space-y-4">
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                   <useCase.icon className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold">{useCase.title}</h3>
-                <p className="text-muted-foreground">{useCase.description}</p>
+                <p className="text-gray-600">{useCase.description}</p>
               </CardContent>
             </Card>
           </BlurFade>

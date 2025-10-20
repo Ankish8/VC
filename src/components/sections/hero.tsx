@@ -22,8 +22,8 @@ function HeroPriceDropBanner() {
       <span className="rounded-md bg-red-600 px-3 py-1 text-sm font-bold text-white">
         PRICE DROP
       </span>
-      <span className="text-lg text-muted-foreground">
-        From <s className="text-muted-foreground/70">$295</s> - <span className="font-bold text-foreground">$39 Only</span>
+      <span className="text-lg text-gray-600">
+        From <s className="text-gray-500">$295</s> - <span className="font-bold text-gray-900">$39 Only</span>
       </span>
     </motion.div>
   );
@@ -87,7 +87,7 @@ function HeroCTA() {
         </Link>
       </motion.div>
       <motion.p
-        className="text-sm text-muted-foreground flex items-center justify-center gap-2 mb-8"
+        className="text-sm text-gray-600 flex items-center justify-center gap-2 mb-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.0, duration: 0.8 }}
@@ -125,7 +125,7 @@ export default function Hero() {
         <HeroTitles />
         <HeroCTA />
         <HeroImage />
-        <div className="pointer-events-none absolute inset-x-0 -bottom-12 h-1/3 bg-gradient-to-t from-background via-background to-transparent lg:h-1/4"></div>
+        <div className="pointer-events-none absolute inset-x-0 -bottom-12 h-1/3 bg-gradient-to-t from-white via-white to-transparent lg:h-1/4"></div>
       </div>
     </section>
   );

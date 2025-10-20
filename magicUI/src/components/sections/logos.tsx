@@ -27,13 +27,13 @@ export default function Logos() {
                 width={112}
                 height={40}
                 src={`https://cdn.magicui.design/companies/${logo}.svg`}
-                className="h-10 w-28 dark:brightness-0 dark:invert grayscale opacity-30"
+                className="h-10 w-28 grayscale opacity-30"
                 alt={logo}
               />
             ))}
           </Marquee>
-          <div className="pointer-events-none absolute inset-y-0 left-0 h-full w-1/3 bg-gradient-to-r from-background"></div>
-          <div className="pointer-events-none absolute inset-y-0 right-0 h-full w-1/3 bg-gradient-to-l from-background"></div>
+          <div className="pointer-events-none absolute inset-y-0 left-0 h-full w-1/3 bg-gradient-to-r from-white"></div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 h-full w-1/3 bg-gradient-to-l from-white"></div>
         </div>
       </div>
     </section>
