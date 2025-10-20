@@ -65,7 +65,7 @@ export function Navbar() {
   }, []);
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: "/login" });
+    await signOut({ redirect: true, redirectTo: "/login" });
   };
 
   const toggleTheme = () => {

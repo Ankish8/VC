@@ -1,25 +1,34 @@
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { Suspense } from "react";
+import FAQ from "@/components/sections/faq";
+import Features from "@/components/sections/features";
+import Footer from "@/components/sections/footer";
+import Header from "@/components/sections/header";
+import Hero from "@/components/sections/hero";
+import HowItWorks from "@/components/sections/how-it-works";
+import Pricing from "@/components/sections/pricing";
+import Problem from "@/components/sections/problem";
+import Solution from "@/components/sections/solution";
+import Testimonials from "@/components/sections/testimonials";
+import UrgencyBanner from "@/components/sections/urgency-banner";
+import { PaymentSuccessBanner } from "@/components/PaymentSuccessBanner";
 
-/**
- * Root page component that handles initial routing based on authentication status.
- *
- * Behavior:
- * - Authenticated users are redirected to /convert (main application page)
- * - Unauthenticated users are redirected to /login
- *
- * This is a server component that uses NextAuth's auth() function
- * to check authentication status on the server side.
- */
-export default async function HomePage() {
-  const session = await auth();
-
-  // Redirect based on authentication status
-  if (session?.user) {
-    // User is authenticated, redirect to convert page
-    redirect("/convert");
-  } else {
-    // User is not authenticated, redirect to login page
-    redirect("/login");
-  }
+export default function Home() {
+  return (
+    <main>
+      <Suspense fallback={null}>
+        <PaymentSuccessBanner />
+      </Suspense>
+      <Header />
+      <UrgencyBanner />
+      <Hero />
+      <Problem />
+      <Solution />
+      <HowItWorks />
+      <Features />
+      <Testimonials />
+      <Pricing />
+      <FAQ />
+      <Footer />
+    </main>
+  );
 }

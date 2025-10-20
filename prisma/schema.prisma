@@ -11,13 +11,21 @@ datasource db {
 }
 
 model User {
-  id          String       @id @default(cuid())
-  email       String       @unique
-  password    String
-  name        String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  conversions Conversion[]
+  id                  String       @id @default(cuid())
+  email               String       @unique
+  password            String
+  name                String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  conversions         Conversion[]
+
+  // Subscription and Payment fields
+  subscriptionType    String       @default("free") // free, lifetime, monthly, yearly
+  paymentStatus       String       @default("none") // none, pending, completed, failed
+  paypalTransactionId String?
+  paypalPayerId       String?
+  mustChangePassword  Boolean      @default(false)
+  paidAt              DateTime?
 }
 
 model Conversion {

@@ -145,6 +145,10 @@ export async function DELETE(
       );
     }
 
+    // TODO: Make blob storage optional for local development
+    // Currently blocks deletion if BLOB_READ_WRITE_TOKEN is not set in .env.local
+    // Option 1: Set up Vercel Blob and add token to .env.local
+    // Option 2: Skip blob deletion in dev mode and only delete DB records
     // Check if blob token is configured
     if (!process.env.BLOB_READ_WRITE_TOKEN) {
       console.error("BLOB_READ_WRITE_TOKEN environment variable is not set");

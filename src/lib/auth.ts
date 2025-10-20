@@ -43,6 +43,7 @@ const authConfig: NextAuthConfig = {
           id: user.id,
           email: user.email,
           name: user.name,
+          mustChangePassword: user.mustChangePassword,
         };
       },
     }),
@@ -52,29 +53,45 @@ const authConfig: NextAuthConfig = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token, user }) {
-      // Add user id to token on sign in
+    async jwt({ token, user, trigger }) {
+      // Add user data to token on sign in
       if (user) {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name ?? undefined;
+        token.mustChangePassword = (user as any).mustChangePassword ?? false;
       }
+
+      // Refresh mustChangePassword flag from database on update
+      if (trigger === "update" && token.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email as string },
+          select: { mustChangePassword: true },
+        });
+        if (dbUser) {
+          token.mustChangePassword = dbUser.mustChangePassword;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
-      // Add user id to session from token
+      // Add user data to session from token
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name;
+        (session.user as any).mustChangePassword = token.mustChangePassword ?? false;
       }
       return session;
     },
   },
   pages: {
     signIn: "/login",
+    signOut: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
 
+export const authOptions = authConfig;
 export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);

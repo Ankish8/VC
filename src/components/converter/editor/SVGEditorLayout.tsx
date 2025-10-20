@@ -113,6 +113,7 @@ export function SVGEditorLayout({
   const [originalSvgElement, setOriginalSvgElement] = useState<SVGElement | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [appliedPalette, setAppliedPalette] = useState<string | null>(null);
+  const [appliedReduction, setAppliedReduction] = useState<number | "original" | null>(null);
 
   // UI state
   const [showComparison, setShowComparison] = useState(false);
@@ -253,6 +254,48 @@ export function SVGEditorLayout({
     toast.success(`Applied ${palette.name} palette`);
   };
 
+  // Handle color reduction
+  const handleColorReduce = (targetColors: number | "original") => {
+    if (!svgElement || !originalSvgElement) return;
+
+    if (targetColors === "original") {
+      // Reset to original colors
+      const clonedOriginal = cloneSVGElement(originalSvgElement);
+      updateSVGState(clonedOriginal);
+      setAppliedReduction("original");
+      toast.success("Reset to original colors");
+      return;
+    }
+
+    if (colors.length <= targetColors) {
+      toast.info(`Already at ${colors.length} colors or less`);
+      return;
+    }
+
+    // Clone element to avoid mutating history
+    const newElement = cloneSVGElement(svgElement);
+
+    // Sort colors by frequency (most used first)
+    const sortedColors = [...colors].sort((a, b) => b.count - a.count);
+
+    // Keep only the top N colors
+    const keptColors = sortedColors.slice(0, targetColors);
+    const removedColors = sortedColors.slice(targetColors);
+
+    // Map removed colors to their nearest kept color
+    removedColors.forEach((removedColor) => {
+      // Find the nearest color from kept colors (simple approach: just use most frequent)
+      const nearestColor = keptColors[0].color;
+      replaceSVGColor(newElement, removedColor.color, nearestColor);
+    });
+
+    // Push to history
+    updateSVGState(newElement);
+    setAppliedReduction(targetColors);
+
+    toast.success(`Reduced to ${targetColors} colors`);
+  };
+
   // Reset changes
   const handleReset = () => {
     if (!originalSvgElement) return;
@@ -267,6 +310,7 @@ export function SVGEditorLayout({
     });
 
     setAppliedPalette(null);
+    setAppliedReduction(null);
     setSelectedColor(null);
 
     toast.success("Reset to original");
@@ -516,13 +560,8 @@ export function SVGEditorLayout({
         selectedColor={selectedColor}
         onColorSelect={handleColorSelect}
         onColorEdit={handleColorEdit}
-        onColorReduce={(targetColors) => {
-          // Implement color reduction logic here
-          console.log("Reduce to", targetColors, "colors");
-          // This would require implementing a color quantization algorithm
-          // For now, just log it
-        }}
-        appliedReduction={null}
+        onColorReduce={handleColorReduce}
+        appliedReduction={appliedReduction}
         hasChanges={hasChanges}
         onReset={handleReset}
         onDownload={handleDownload}

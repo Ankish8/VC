@@ -15,11 +15,11 @@ interface ColorReductionProps {
 }
 
 const colorOptions: Array<{ value: number | "original"; label: string; description: string }> = [
-  { value: "original", label: "Original", description: "Keep all colors from SVG" },
-  { value: 16, label: "16 Colors", description: "High detail" },
-  { value: 8, label: "8 Colors", description: "Balanced" },
-  { value: 4, label: "4 Colors", description: "Simplified" },
   { value: 2, label: "2 Colors", description: "Minimal" },
+  { value: 4, label: "4 Colors", description: "Simplified" },
+  { value: 8, label: "8 Colors", description: "Balanced" },
+  { value: 16, label: "16 Colors", description: "High detail" },
+  { value: "original", label: "Original", description: "Keep all colors from SVG" },
 ];
 
 export function ColorReduction({
@@ -32,7 +32,8 @@ export function ColorReduction({
   // Get preview colors for each reduction option (top N colors by frequency)
   const getPreviewColors = (count: number | "original"): string[] => {
     if (count === "original") {
-      return currentColors.slice(0, 8).map((c) => c.color);
+      // Show all colors for original (limit to 20 for display purposes)
+      return currentColors.slice(0, Math.min(currentColors.length, 20)).map((c) => c.color);
     }
     const sorted = [...currentColors].sort((a, b) => b.count - a.count);
     return sorted.slice(0, count).map((c) => c.color);
