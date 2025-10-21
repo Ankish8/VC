@@ -69,10 +69,11 @@ const features = [
           height={800}
           width={800}
         />
-        <Safari
-          src={`/dashboard.png`}
-          url={siteConfig.url}
-          className="-mb-48 ml-12 mt-16 h-full px-4 select-none drop-shadow-[0_0_28px_rgba(0,0,0,.1)] group-hover:translate-x-[-10px] transition-all duration-300"
+        <img
+          src="/conversion-process.png"
+          alt="VectorCraft conversion process showing speed"
+          className="-mb-32 ml-8 mt-12 w-auto px-4 select-none drop-shadow-[0_0_28px_rgba(0,0,0,.1)] group-hover:translate-x-[-10px] transition-all duration-300"
+          style={{ maxHeight: '470px' }}
         />
       </>
     ),

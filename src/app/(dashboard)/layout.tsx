@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { DashboardWrapper } from "@/components/DashboardWrapper";
 import { auth } from "@/lib/auth";
 import ChangePasswordModal from "@/components/auth/ChangePasswordModal";
 
@@ -19,23 +20,25 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
   const mustChangePassword = (session?.user as any)?.mustChangePassword ?? false;
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/20">
-      {/* Password Change Modal - Shows on first login */}
-      {mustChangePassword && session?.user?.email && (
-        <ChangePasswordModal email={session.user.email} />
-      )}
+    <DashboardWrapper>
+      <div className="relative min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/20">
+        {/* Password Change Modal - Shows on first login */}
+        {mustChangePassword && session?.user?.email && (
+          <ChangePasswordModal email={session.user.email} />
+        )}
 
-      {/* Navigation Bar */}
-      <Navbar />
+        {/* Navigation Bar */}
+        <Navbar />
 
-      {/* Main Content Area - Match Header Width */}
-      <main className="flex-1 w-full">
-        <div className="container mx-auto px-4 py-12 md:py-16">
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
-        </div>
-      </main>
-    </div>
+        {/* Main Content Area - Match Header Width */}
+        <main className="flex-1 w-full">
+          <div className="container mx-auto px-4 py-12 md:py-16">
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
+          </div>
+        </main>
+      </div>
+    </DashboardWrapper>
   );
 }

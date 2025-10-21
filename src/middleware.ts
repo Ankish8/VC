@@ -23,6 +23,10 @@ export async function middleware(request: NextRequest) {
   const authRoutes = ["/login", "/register"];
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
+  // Admin routes that require admin privileges
+  const adminRoutes = ["/admin"];
+  const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
+
   // Redirect unauthenticated users from protected routes to login
   if (isProtectedRoute && !isAuthenticated) {
     const loginUrl = new URL("/login", request.url);
@@ -33,6 +37,21 @@ export async function middleware(request: NextRequest) {
   // Redirect authenticated users from auth routes to convert page
   if (isAuthRoute && isAuthenticated) {
     return NextResponse.redirect(new URL("/convert", request.url));
+  }
+
+  // Protect admin routes - require authentication and admin status
+  if (isAdminRoute) {
+    if (!isAuthenticated) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    const isAdmin = token?.isAdmin ?? false;
+    if (!isAdmin) {
+      // Redirect non-admin users to home page
+      return NextResponse.redirect(new URL("/", request.url));
+    }
   }
 
   return NextResponse.next();

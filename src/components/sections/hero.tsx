@@ -1,7 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-
+import { useState, useEffect } from "react";
+import { ShowcaseComparisonSlider } from "@/components/showcase/ShowcaseComparisonSlider";
+import { ShowcaseThumbnailCarousel } from "@/components/showcase/ShowcaseThumbnailCarousel";
 import { Icons } from "@/components/icons";
 import HeroVideoDialog from "@/components/magicui/hero-video";
 import { buttonVariants } from "@/components/ui/button";
@@ -10,6 +12,14 @@ import Link from "next/link";
 import { handleSmoothScroll } from "@/lib/smooth-scroll";
 
 const ease = [0.16, 1, 0.3, 1];
+
+interface ShowcaseImage {
+  id: string;
+  rasterImageUrl: string;
+  svgUrl: string;
+  filename: string;
+  displayOrder: number;
+}
 
 function HeroPriceDropBanner() {
   return (
@@ -99,20 +109,75 @@ function HeroCTA() {
 }
 
 function HeroImage() {
+  const [showcaseImages, setShowcaseImages] = useState<ShowcaseImage[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch showcase images from API
+    fetch("/api/showcase")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.showcaseImages && data.showcaseImages.length > 0) {
+          setShowcaseImages(data.showcaseImages);
+        }
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch showcase images:", error);
+        setIsLoading(false);
+      });
+  }, []);
+
+  // If no showcase images, show nothing (or you could show a placeholder)
+  if (isLoading) {
+    return (
+      <motion.div
+        className="relative mx-auto flex w-full items-center justify-center px-4 md:px-8"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.2, duration: 1, ease }}
+      >
+        <div className="w-full max-w-5xl h-[600px] flex items-center justify-center bg-muted/20 rounded-2xl">
+          <p className="text-muted-foreground">Loading showcase...</p>
+        </div>
+      </motion.div>
+    );
+  }
+
+  if (showcaseImages.length === 0) {
+    return null;
+  }
+
+  const selectedImage = showcaseImages[selectedIndex];
+
   return (
     <motion.div
-      className="relative mx-auto flex w-full items-center justify-center px-4 md:px-8"
+      className="relative mx-auto flex w-full flex-col gap-6 items-center justify-center px-4 md:px-8"
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 1.2, duration: 1, ease }}
     >
-      <HeroVideoDialog
-        animationStyle="from-center"
-        videoSrc="https://www.youtube.com/embed/qh3NGpYRG3I?si=4rb-zSdDkVK9qxxb"
-        thumbnailSrc="/dashboard.png"
-        thumbnailAlt="VectorCraft Demo - See Vector Conversion in Action"
-        className="w-full max-w-5xl"
-      />
+      {/* Main Comparison Slider */}
+      <div className="w-full max-w-4xl bg-gray-100 rounded-lg overflow-hidden shadow-sm" style={{ height: "550px" }}>
+        <ShowcaseComparisonSlider
+          rasterImageUrl={selectedImage.rasterImageUrl}
+          svgUrl={selectedImage.svgUrl}
+          filename={selectedImage.filename}
+          className="w-full h-full"
+        />
+      </div>
+
+      {/* Thumbnail Carousel */}
+      {showcaseImages.length > 1 && (
+        <div className="w-full max-w-4xl mt-8">
+          <ShowcaseThumbnailCarousel
+            images={showcaseImages}
+            selectedIndex={selectedIndex}
+            onSelect={setSelectedIndex}
+          />
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -125,7 +190,6 @@ export default function Hero() {
         <HeroTitles />
         <HeroCTA />
         <HeroImage />
-        <div className="pointer-events-none absolute inset-x-0 -bottom-12 h-1/3 bg-gradient-to-t from-white via-white to-transparent lg:h-1/4"></div>
       </div>
     </section>
   );

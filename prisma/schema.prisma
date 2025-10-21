@@ -26,6 +26,7 @@ model User {
   paypalPayerId       String?
   mustChangePassword  Boolean      @default(false)
   paidAt              DateTime?
+  isAdmin             Boolean      @default(false)
 }
 
 model Conversion {
@@ -45,4 +46,16 @@ model Conversion {
 
   @@index([userId])
   @@index([createdAt])
+}
+
+model ShowcaseImage {
+  id              String   @id @default(cuid())
+  rasterImageUrl  String
+  svgUrl          String
+  filename        String
+  displayOrder    Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([displayOrder])
 }

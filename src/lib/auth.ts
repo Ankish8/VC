@@ -44,6 +44,7 @@ const authConfig: NextAuthConfig = {
           email: user.email,
           name: user.name,
           mustChangePassword: user.mustChangePassword,
+          isAdmin: user.isAdmin,
         };
       },
     }),
@@ -60,16 +61,18 @@ const authConfig: NextAuthConfig = {
         token.email = user.email;
         token.name = user.name ?? undefined;
         token.mustChangePassword = (user as any).mustChangePassword ?? false;
+        token.isAdmin = (user as any).isAdmin ?? false;
       }
 
       // Refresh mustChangePassword flag from database on update
       if (trigger === "update" && token.email) {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email as string },
-          select: { mustChangePassword: true },
+          select: { mustChangePassword: true, isAdmin: true },
         });
         if (dbUser) {
           token.mustChangePassword = dbUser.mustChangePassword;
+          token.isAdmin = dbUser.isAdmin;
         }
       }
 
@@ -82,6 +85,7 @@ const authConfig: NextAuthConfig = {
         session.user.email = token.email as string;
         session.user.name = token.name;
         (session.user as any).mustChangePassword = token.mustChangePassword ?? false;
+        (session.user as any).isAdmin = token.isAdmin ?? false;
       }
       return session;
     },

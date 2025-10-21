@@ -14,6 +14,7 @@ import {
   X,
   ImageIcon,
   History,
+  Shield,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -179,6 +180,17 @@ export function Navbar() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
+                    {(session.user as any)?.isAdmin && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin/showcase" className="cursor-pointer">
+                            <Shield className="mr-2 h-4 w-4" />
+                            <span>Admin Panel</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
                     <DropdownMenuItem
                       onClick={handleSignOut}
                       className="cursor-pointer text-destructive focus:text-destructive"
@@ -261,6 +273,17 @@ export function Navbar() {
                       </p>
                     </div>
                   </div>
+                  {(session.user as any)?.isAdmin && (
+                    <Link href="/admin/showcase" onClick={() => setMobileMenuOpen(false)}>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start mb-2"
+                      >
+                        <Shield className="mr-2 h-4 w-4" />
+                        Admin Panel
+                      </Button>
+                    </Link>
+                  )}
                   <Button
                     variant="outline"
                     onClick={handleSignOut}
