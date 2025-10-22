@@ -65,9 +65,8 @@ export function SVGCanvas({
         wheel={{ step: 0.1 }}
         onZoom={(ref) => setZoom(ref.state.scale)}
         centerOnInit={true}
+        centerZoomedOut={true}
         alignmentAnimation={{ disabled: false }}
-        initialPositionX={0}
-        initialPositionY={0}
       >
         {({ zoomIn, zoomOut, resetTransform, centerView }) => (
           <>
@@ -112,7 +111,7 @@ export function SVGCanvas({
 
             {/* Canvas */}
             <TransformComponent
-              wrapperClass="!w-full !h-full flex items-start justify-center pt-4"
+              wrapperClass="!w-full !h-full flex items-center justify-center"
               contentClass="flex items-center justify-center"
             >
               <div

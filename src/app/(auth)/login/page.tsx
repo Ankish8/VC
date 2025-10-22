@@ -10,8 +10,8 @@ import {
 import { LoginForm } from "@/components/auth/LoginForm";
 
 export const metadata: Metadata = {
-  title: "Sign In | Raster to SVG",
-  description: "Sign in to your Raster to SVG account",
+  title: "Sign In",
+  description: "Sign in to your VectorCraft account",
 };
 
 export default function LoginPage() {

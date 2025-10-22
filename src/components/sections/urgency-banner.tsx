@@ -6,21 +6,66 @@ import { motion } from "framer-motion";
 const ease = [0.16, 1, 0.3, 1];
 
 export default function UrgencyBanner() {
-  const initialTime = 5 * 24 * 3600 + 12 * 3600 + 30 * 60 + 45;
-  const [timeLeft, setTimeLeft] = useState(initialTime);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [isEnabled, setIsEnabled] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Fetch the timer end date from API
   useEffect(() => {
-    if (timeLeft <= 0) return;
-    const intervalId = setInterval(() => {
-      setTimeLeft((prevTime) => prevTime - 1);
-    }, 1000);
+    async function fetchTimer() {
+      try {
+        const response = await fetch('/api/timer');
+        const data = await response.json();
+
+        if (data.success && data.enabled) {
+          setEndDate(new Date(data.endDate));
+          setIsEnabled(data.enabled);
+        } else {
+          setIsEnabled(false);
+        }
+      } catch (error) {
+        console.error('Error fetching timer:', error);
+        // Use default 7-day timer as fallback
+        const fallbackDate = new Date();
+        fallbackDate.setDate(fallbackDate.getDate() + 7);
+        setEndDate(fallbackDate);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchTimer();
+  }, []);
+
+  // Calculate and update time left every second
+  useEffect(() => {
+    if (!endDate || !isEnabled) return;
+
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const difference = endDate.getTime() - now.getTime();
+      const secondsLeft = Math.max(0, Math.floor(difference / 1000));
+      setTimeLeft(secondsLeft);
+    };
+
+    // Initial calculation
+    calculateTimeLeft();
+
+    // Update every second
+    const intervalId = setInterval(calculateTimeLeft, 1000);
     return () => clearInterval(intervalId);
-  }, [timeLeft]);
+  }, [endDate, isEnabled]);
 
   const days = String(Math.floor(timeLeft / (24 * 3600))).padStart(2, "0");
   const hours = String(Math.floor((timeLeft % (24 * 3600)) / 3600)).padStart(2, "0");
   const minutes = String(Math.floor((timeLeft % 3600) / 60)).padStart(2, "0");
   const seconds = String(timeLeft % 60).padStart(2, "0");
+
+  // Don't show the banner if disabled or still loading
+  if (!isEnabled || isLoading) {
+    return null;
+  }
 
   return (
     <motion.div

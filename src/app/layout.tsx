@@ -20,12 +20,13 @@ const inter = Inter({
  */
 export const metadata: Metadata = {
   title: {
-    default: "Raster to SVG Converter",
-    template: "%s | Raster to SVG",
+    default: "VectorCraft - AI-Powered SVG Converter",
+    template: "%s | VectorCraft",
   },
   description:
-    "Transform raster images into scalable vector graphics (SVG) with AI-powered conversion. High-quality, fast, and easy to use.",
+    "Transform raster images into scalable vector graphics (SVG) with VectorCraft's AI-powered conversion. High-quality, fast, and easy to use.",
   keywords: [
+    "vectorcraft",
     "raster to svg",
     "image converter",
     "svg converter",
@@ -34,22 +35,22 @@ export const metadata: Metadata = {
     "png to svg",
     "jpg to svg",
   ],
-  authors: [{ name: "Raster to SVG" }],
-  creator: "Raster to SVG",
+  authors: [{ name: "VectorCraft" }],
+  creator: "VectorCraft",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://raster-to-svg.com",
-    title: "Raster to SVG Converter",
+    title: "VectorCraft - AI-Powered SVG Converter",
     description:
-      "Transform raster images into scalable vector graphics (SVG) with AI-powered conversion.",
-    siteName: "Raster to SVG",
+      "Transform raster images into scalable vector graphics (SVG) with VectorCraft's AI-powered conversion.",
+    siteName: "VectorCraft",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Raster to SVG Converter",
+    title: "VectorCraft - AI-Powered SVG Converter",
     description:
-      "Transform raster images into scalable vector graphics (SVG) with AI-powered conversion.",
+      "Transform raster images into scalable vector graphics (SVG) with VectorCraft's AI-powered conversion.",
   },
   robots: {
     index: true,

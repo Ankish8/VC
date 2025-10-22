@@ -27,6 +27,13 @@ model User {
   mustChangePassword  Boolean      @default(false)
   paidAt              DateTime?
   isAdmin             Boolean      @default(false)
+
+  // PayPal Subscription fields
+  paypalSubscriptionId String?     @unique
+  subscriptionStatus   String       @default("none") // none, active, cancelled, expired, pending
+  subscriptionPlan     String?     // starter_monthly, starter_yearly, pro_monthly, pro_yearly
+  subscriptionEndsAt   DateTime?
+  subscriptionStartedAt DateTime?
 }
 
 model Conversion {
@@ -58,4 +65,21 @@ model ShowcaseImage {
   updatedAt       DateTime @updatedAt
 
   @@index([displayOrder])
+}
+
+model SiteSettings {
+  id                  String   @id @default(cuid())
+  // Timer Configuration
+  timerEnabled        Boolean  @default(true)
+  timerDurationDays   Int      @default(7) // Duration in days for the countdown
+  lastResetAt         DateTime @default(now()) // When the timer was last reset
+
+  // PayPal Subscription Plan IDs (created in PayPal)
+  starterMonthlyPlanId  String?
+  starterYearlyPlanId   String?
+  proMonthlyPlanId      String?
+  proYearlyPlanId       String?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }

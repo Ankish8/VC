@@ -8,7 +8,7 @@ const data = [
     title: "1. Just Drop Your Image",
     content:
       "No account needed. No forms to fill. Simply drag any JPG or JPEG image and watch the magic happen instantly. Our AI starts working the moment your image touches the screen.",
-    image: "/dashboard.png",
+    image: "/1.png",
     icon: <MousePointer className="w-6 h-6 text-primary" />,
   },
   {
@@ -16,15 +16,15 @@ const data = [
     title: "2. AI Works Its Magic in 30 Seconds",
     content:
       "Our world-class AI analyzes every pixel and creates perfect vectors automatically. No manual work. No complex settings. No waiting around. Just professional results in under 30 seconds.",
-    image: "/dashboard.png",
+    image: "/2.png",
     icon: <Sparkles className="w-6 h-6 text-primary" />,
   },
   {
     id: 3,
-    title: "3. Download Print-Ready Vectors",
+    title: "3. Customize & Export",
     content:
-      "Get perfect SVG and EPS files ready for any project. From business cards to billboards - your vectors will look stunning at any size. Professional print shops love our output.",
-    image: "/dashboard.png",
+      "Fine-tune your vectors with our intuitive color editor. Adjust colors, refine details, and perfect your design before exporting. Download as SVG or EPS files ready for any project.",
+    image: "/3.png",
     icon: <Download className="w-6 h-6 text-primary" />,
   },
 ];

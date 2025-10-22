@@ -10,8 +10,8 @@ import {
 import { RegisterForm } from "@/components/auth/RegisterForm";
 
 export const metadata: Metadata = {
-  title: "Sign Up | Raster to SVG",
-  description: "Create a new Raster to SVG account",
+  title: "Sign Up",
+  description: "Create a new VectorCraft account",
 };
 
 export default function RegisterPage() {

@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaStar } from "react-icons/fa";
 import { CountdownTimer } from "@/components/ui/countdown-timer";
 
@@ -18,10 +18,34 @@ export default function PricingSection() {
   const [isMonthly, setIsMonthly] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const { isDesktop } = useWindowSize();
+  const [offerEndDate, setOfferEndDate] = useState<Date | null>(null);
 
-  // Set countdown to 7 days from now
-  const offerEndDate = new Date();
-  offerEndDate.setDate(offerEndDate.getDate() + 7);
+  // Fetch timer end date from centralized API
+  useEffect(() => {
+    async function fetchTimer() {
+      try {
+        const response = await fetch('/api/timer');
+        const data = await response.json();
+
+        if (data.success && data.enabled) {
+          setOfferEndDate(new Date(data.endDate));
+        } else {
+          // Fallback: use 7 days from now if timer is disabled
+          const fallbackDate = new Date();
+          fallbackDate.setDate(fallbackDate.getDate() + 7);
+          setOfferEndDate(fallbackDate);
+        }
+      } catch (error) {
+        console.error('Error fetching timer:', error);
+        // Fallback: use 7 days from now
+        const fallbackDate = new Date();
+        fallbackDate.setDate(fallbackDate.getDate() + 7);
+        setOfferEndDate(fallbackDate);
+      }
+    }
+
+    fetchTimer();
+  }, []);
 
   const handleToggle = () => {
     setIsMonthly(!isMonthly);
@@ -30,7 +54,7 @@ export default function PricingSection() {
   const handlePayPalCheckout = async () => {
     setIsProcessing(true);
     try {
-      // Call API to create PayPal order
+      // Call API to create PayPal order for lifetime deal
       const response = await fetch("/api/payment/create-order", {
         method: "POST",
         headers: {
@@ -52,6 +76,46 @@ export default function PricingSection() {
     } catch (error: any) {
       console.error("PayPal checkout error:", error);
       alert("Failed to initiate PayPal checkout. Please try again.");
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSubscriptionCheckout = async (planName: string) => {
+    setIsProcessing(true);
+    try {
+      // Determine plan type based on plan name and billing period
+      let planType = '';
+
+      if (planName === 'STARTER') {
+        planType = isMonthly ? 'starter_monthly' : 'starter_yearly';
+      } else if (planName === 'PROFESSIONAL') {
+        planType = isMonthly ? 'pro_monthly' : 'pro_yearly';
+      } else {
+        throw new Error('Invalid plan');
+      }
+
+      // Call API to create PayPal subscription
+      const response = await fetch("/api/payment/create-subscription", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          planType,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.approvalUrl) {
+        // Redirect to PayPal for subscription approval
+        window.location.href = data.approvalUrl;
+      } else {
+        throw new Error(data.error || "Failed to create subscription");
+      }
+    } catch (error: any) {
+      console.error("Subscription checkout error:", error);
+      alert(error.message || "Failed to initiate subscription. Please try again.");
       setIsProcessing(false);
     }
   };
@@ -110,10 +174,10 @@ export default function PricingSection() {
                 {plan.period === "lifetime" ? "one-time payment" : isMonthly ? "billed monthly" : "billed annually"}
               </p>
 
-              {plan.name === "LIFETIME" && (
+              {plan.name === "LIFETIME" && offerEndDate && (
                 <div className="mt-2 flex justify-center">
-                  <CountdownTimer 
-                    endDate={offerEndDate} 
+                  <CountdownTimer
+                    endDate={offerEndDate}
                     className="bg-red-50 px-2 py-1 rounded-md"
                   />
                 </div>
@@ -154,19 +218,28 @@ export default function PricingSection() {
                   )}
                 </button>
               ) : (
-                <Link
-                  href={plan.href}
+                <button
+                  onClick={() => handleSubscriptionCheckout(plan.name)}
+                  disabled={isProcessing}
                   className={cn(
                     buttonVariants({
                       variant: "outline",
                     }),
                     "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter",
                     "transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 hover:bg-primary hover:text-white",
-                    "bg-white text-black"
+                    "bg-white text-black",
+                    isProcessing && "opacity-50 cursor-not-allowed"
                   )}
                 >
-                  {plan.buttonText}
-                </Link>
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    plan.buttonText
+                  )}
+                </button>
               )}
               <p className="mt-6 text-xs leading-5 text-gray-600">
                 {plan.description}

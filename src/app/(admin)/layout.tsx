@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Home, Image, LogOut } from "lucide-react";
+import { Home, Image, LogOut, Settings } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 
 export default async function AdminLayout({
@@ -36,6 +36,12 @@ export default async function AdminLayout({
                   <Button variant="ghost" size="sm" className="gap-2">
                     <Image className="h-4 w-4" />
                     Showcase Images
+                  </Button>
+                </Link>
+                <Link href="/admin/settings">
+                  <Button variant="ghost" size="sm" className="gap-2">
+                    <Settings className="h-4 w-4" />
+                    Settings
                   </Button>
                 </Link>
               </nav>

@@ -267,10 +267,10 @@ export default function ConvertPage() {
             <Sparkles className="h-6 w-6 text-primary" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-            Convert to SVG
+            VectorCraft Converter
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Transform your raster images into scalable vector graphics with AI
+            Transform your raster images into scalable vector graphics with AI-powered precision
           </p>
         </div>
       )}
@@ -287,8 +287,8 @@ export default function ConvertPage() {
           />
         </div>
       ) : (
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* Left Column - Upload Section */}
+        <div className="max-w-3xl mx-auto">
+          {/* Centered Upload Section */}
           <div className="space-y-6">
             {!isConverting && (
               <ImageUpload
@@ -345,19 +345,6 @@ export default function ConvertPage() {
                 </Button>
               </div>
             )}
-          </div>
-
-          {/* Right Column - Preview Placeholder */}
-          <div className="hidden lg:flex h-full min-h-[500px] items-center justify-center rounded-2xl border border-dashed border-muted-foreground/25 bg-muted/30">
-            <div className="text-center space-y-4 p-8">
-              <div className="mx-auto h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-2">
-                <Sparkles className="h-10 w-10 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">Preview</h3>
-              <p className="text-sm text-muted-foreground max-w-sm">
-                Your converted SVG will appear here
-              </p>
-            </div>
           </div>
         </div>
       )}

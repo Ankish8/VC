@@ -11,6 +11,8 @@ import React, {
 } from "react";
 
 import { cn } from "@/lib/utils";
+import { Safari } from "@/components/ui/safari";
+import { MagnifierImage } from "@/components/MagnifierImage";
 
 type AccordionItemProps = {
   children: React.ReactNode;
@@ -266,21 +268,34 @@ export default function Features({
               </Accordion.Root>
             </div>
             <div
-              className={`h-[350px] min-h-[200px] w-auto  ${
+              className={`h-[450px] min-h-[300px] w-full  ${
                 ltr && "lg:order-1"
               }`}
             >
               {data[currentIndex]?.image ? (
-                <motion.img
+                <motion.div
                   key={currentIndex}
-                  src={data[currentIndex].image}
-                  alt="feature"
-                  className="aspect-auto h-full w-full rounded-xl border border-neutral-300/50 object-cover object-left-top p-1 shadow-lg"
+                  className="h-full w-full"
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.98 }}
                   transition={{ duration: 0.25, ease: "easeOut" }}
-                />
+                >
+                  <MagnifierImage
+                    src={data[currentIndex].image}
+                    alt={data[currentIndex].title}
+                    className="h-full w-full"
+                    magnifierHeight={200}
+                    magnifierWidth={200}
+                    zoomLevel={1.5}
+                  >
+                    <Safari
+                      url="thevectorcraft.com"
+                      imageSrc={data[currentIndex].image}
+                      className="shadow-lg w-full h-full"
+                    />
+                  </MagnifierImage>
+                </motion.div>
               ) : data[currentIndex]?.video ? (
                 <video
                   preload="auto"

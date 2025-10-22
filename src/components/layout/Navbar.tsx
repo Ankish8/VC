@@ -100,8 +100,8 @@ export function Navbar() {
               className="flex items-center gap-2 font-semibold text-sm hover:opacity-80 transition-opacity"
             >
               <ImageIcon className="h-5 w-5 text-primary" />
-              <span className="hidden sm:inline">Raster to SVG</span>
-              <span className="sm:hidden">R2SVG</span>
+              <span className="hidden sm:inline">VectorCraft</span>
+              <span className="sm:hidden">VC</span>
             </Link>
 
             {/* Desktop Navigation Links */}
