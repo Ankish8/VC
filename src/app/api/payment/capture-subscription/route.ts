@@ -4,6 +4,7 @@ import { getSubscriptionDetails } from '@/lib/paypal';
 import { prisma } from '@/lib/db';
 import { hash } from 'bcryptjs';
 import { Resend } from 'resend';
+import { initializeCreditsForSubscription } from '@/lib/credits';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
@@ -52,6 +53,9 @@ export async function GET(request: NextRequest) {
 
     if (user) {
       // Update existing user's subscription
+      const subscriptionStartDate = new Date();
+      const subscriptionTypeValue = planType.includes('yearly') ? 'yearly' : 'monthly';
+
       user = await prisma.user.update({
         where: { email },
         data: {
@@ -59,11 +63,19 @@ export async function GET(request: NextRequest) {
           subscriptionStatus: 'active',
           subscriptionPlan: planType,
           subscriptionEndsAt: nextBillingDate,
-          subscriptionStartedAt: new Date(),
+          subscriptionStartedAt: subscriptionStartDate,
           paymentStatus: 'completed',
-          subscriptionType: planType.includes('yearly') ? 'yearly' : 'monthly',
+          subscriptionType: subscriptionTypeValue,
         },
       });
+
+      // Initialize credits for the subscription
+      await initializeCreditsForSubscription(
+        user.id,
+        planType,
+        subscriptionTypeValue,
+        subscriptionStartDate
+      );
 
       redirect(
         `/?payment=success&existing=true&subscription=${planType.replace('_', ' ')}`
@@ -75,6 +87,8 @@ export async function GET(request: NextRequest) {
       // Generate temporary password
       const tempPassword = Math.random().toString(36).slice(-12);
       const hashedPassword = await hash(tempPassword, 10);
+      const subscriptionStartDate = new Date();
+      const subscriptionTypeValue = planType.includes('yearly') ? 'yearly' : 'monthly';
 
       user = await prisma.user.create({
         data: {
@@ -86,12 +100,20 @@ export async function GET(request: NextRequest) {
           subscriptionStatus: 'active',
           subscriptionPlan: planType,
           subscriptionEndsAt: nextBillingDate,
-          subscriptionStartedAt: new Date(),
+          subscriptionStartedAt: subscriptionStartDate,
           paymentStatus: 'completed',
-          subscriptionType: planType.includes('yearly') ? 'yearly' : 'monthly',
+          subscriptionType: subscriptionTypeValue,
           mustChangePassword: true,
         },
       });
+
+      // Initialize credits for the new subscription
+      await initializeCreditsForSubscription(
+        user.id,
+        planType,
+        subscriptionTypeValue,
+        subscriptionStartDate
+      );
 
       // Send welcome email with credentials
       try {

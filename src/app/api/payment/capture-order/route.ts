@@ -69,6 +69,10 @@ async function handleCaptureOrder(request: NextRequest) {
           paypalTransactionId: transactionId,
           paypalPayerId: payerId || undefined,
           paidAt: new Date(),
+          // Set unlimited credits for lifetime users
+          creditsRemaining: -1,
+          creditsTotal: -1,
+          creditsResetDate: null,
         },
       });
 
@@ -96,6 +100,10 @@ async function handleCaptureOrder(request: NextRequest) {
         paypalPayerId: payerId || undefined,
         mustChangePassword: true,
         paidAt: new Date(),
+        // Set unlimited credits for lifetime users
+        creditsRemaining: -1,
+        creditsTotal: -1,
+        creditsResetDate: null,
       },
     });
 

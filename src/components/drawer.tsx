@@ -63,14 +63,15 @@ export default function drawerDemo() {
             Login
           </Link>
           <Link
-            href="/buy"
+            href="#pricing"
+            onClick={handleSmoothScroll}
             className={cn(
               buttonVariants({ variant: "default" }),
               "w-full sm:w-auto text-background flex gap-2 bg-black hover:bg-gray-800"
             )}
           >
             <Icons.logo className="h-6 w-6" />
-            Buy Now - $39
+            Buy Now
           </Link>
         </DrawerFooter>
       </DrawerContent>

@@ -8,7 +8,7 @@ export const siteConfig = {
   url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   keywords: ["Vector", "Conversion", "Image", "AI", "SVG", "PDF", "EPS"],
   links: {
-    email: "support@vectorcraft.com",
+    email: "support@thevectorcraft.com",
     twitter: "https://twitter.com/magicuidesign",
     discord: "https://discord.gg/87p2vpsat5",
     github: "https://github.com/magicuidesign/magicui",
@@ -192,7 +192,7 @@ export const siteConfig = {
       title: "Support",
       links: [
         { href: "/contact", text: "Contact Us", icon: null },
-        { href: "mailto:support@vectorcraft.com", text: "Email Support", icon: null },
+        { href: "mailto:support@thevectorcraft.com", text: "Email Support", icon: null },
       ],
     },
     {

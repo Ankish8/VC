@@ -34,6 +34,11 @@ model User {
   subscriptionPlan     String?     // starter_monthly, starter_yearly, pro_monthly, pro_yearly
   subscriptionEndsAt   DateTime?
   subscriptionStartedAt DateTime?
+
+  // Credit tracking fields
+  creditsRemaining    Int          @default(0) // Current available credits
+  creditsTotal        Int          @default(0) // Total credits per cycle (100, 500, or unlimited)
+  creditsResetDate    DateTime?    // When credits will reset (based on billing cycle)
 }
 
 model Conversion {
@@ -79,6 +84,17 @@ model SiteSettings {
   starterYearlyPlanId   String?
   proMonthlyPlanId      String?
   proYearlyPlanId       String?
+
+  // Pricing Configuration (in USD)
+  starterMonthlyPrice   Float    @default(10.00)
+  starterYearlyPrice    Float    @default(96.00) // $8/month * 12
+  proMonthlyPrice       Float    @default(19.00)
+  proYearlyPrice        Float    @default(180.00) // $15/month * 12
+  lifetimePrice         Float    @default(39.00)
+
+  // Credit Limits per Plan
+  starterCredits        Int      @default(100) // Credits per month for Starter plan
+  proCredits            Int      @default(500) // Credits per month for Professional plan
 
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt

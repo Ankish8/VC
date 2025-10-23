@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ConversionResult } from "@/types";
 import { useClipboardPaste } from "@/hooks/useClipboardPaste";
+import CreditBanner from "@/components/dashboard/CreditBanner";
 
 type WorkflowStage =
   | "idle"
@@ -262,17 +263,24 @@ export default function ConvertPage() {
     <div className={isCompleted ? "overflow-hidden -mx-4 -my-12 md:-my-16" : "space-y-12"}>
       {/* Page Header - Hero Style - Hide when completed */}
       {!isCompleted && (
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-full mb-4">
-            <Sparkles className="h-6 w-6 text-primary" />
+        <>
+          <div className="text-center space-y-4">
+            <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-full mb-4">
+              <Sparkles className="h-6 w-6 text-primary" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+              VectorCraft Converter
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Transform your raster images into scalable vector graphics with AI-powered precision
+            </p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-            VectorCraft Converter
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Transform your raster images into scalable vector graphics with AI-powered precision
-          </p>
-        </div>
+
+          {/* Credit Warning Banner */}
+          <div className="max-w-3xl mx-auto">
+            <CreditBanner />
+          </div>
+        </>
       )}
 
       {/* Main Content Area */}

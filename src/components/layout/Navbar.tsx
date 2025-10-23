@@ -15,6 +15,7 @@ import {
   ImageIcon,
   History,
   Shield,
+  Settings,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ interface NavLink {
 const navLinks: NavLink[] = [
   { href: "/convert", label: "Convert", icon: ImageIcon },
   { href: "/history", label: "History", icon: History },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 /**

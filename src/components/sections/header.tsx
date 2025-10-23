@@ -68,7 +68,7 @@ export default function Header() {
                 )}
               >
                 <Icons.logo className="h-6 w-6" />
-                Buy Now - $39
+                Buy Now
               </Link>
             </div>
           </div>

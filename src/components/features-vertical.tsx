@@ -290,7 +290,7 @@ export default function Features({
                     zoomLevel={1.5}
                   >
                     <Safari
-                      url="thevectorcraft.com"
+                      url="https://thevectorcraft.com"
                       imageSrc={data[currentIndex].image}
                       className="shadow-lg w-full h-full"
                     />

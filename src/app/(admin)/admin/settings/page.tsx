@@ -1,4 +1,5 @@
 import AdminTimerSettings from "@/components/admin/AdminTimerSettings";
+import AdminPricingSettings from "@/components/admin/AdminPricingSettings";
 
 export default function AdminSettingsPage() {
   return (
@@ -6,11 +7,14 @@ export default function AdminSettingsPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Site Settings</h1>
         <p className="text-slate-600">
-          Manage countdown timers, subscription plans, and other site-wide settings
+          Manage countdown timers, subscription plans, pricing, and other site-wide settings
         </p>
       </div>
 
-      <AdminTimerSettings />
+      <div className="space-y-8">
+        <AdminTimerSettings />
+        <AdminPricingSettings />
+      </div>
     </div>
   );
 }

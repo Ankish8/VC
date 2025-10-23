@@ -5,7 +5,7 @@ import crypto from "crypto";
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminEmail = "ankish@vectorcraft.com";
+  const adminEmail = "ankish@thevectorcraft.com";
 
   // Generate a secure random password
   const password = crypto.randomBytes(12).toString("base64").slice(0, 16);

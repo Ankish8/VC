@@ -199,28 +199,32 @@ export interface SubscriptionPlan {
  * This needs to be done once for each plan (monthly/yearly for each tier)
  */
 export async function createSubscriptionPlan(
-  params: CreateSubscriptionPlanParams
+  name: string,
+  description: string,
+  amount: string,
+  interval: 'MONTH' | 'YEAR',
+  currency: string = "USD"
 ): Promise<SubscriptionPlan> {
   const accessToken = await getAccessToken();
 
   const planData = {
     product_id: await getOrCreateProduct("VectorCraft"),
-    name: params.name,
-    description: params.description,
+    name: name,
+    description: description,
     status: "ACTIVE",
     billing_cycles: [
       {
         frequency: {
-          interval_unit: params.interval,
-          interval_count: params.intervalCount || 1,
+          interval_unit: interval,
+          interval_count: 1,
         },
         tenure_type: "REGULAR",
         sequence: 1,
         total_cycles: 0, // 0 = infinite
         pricing_scheme: {
           fixed_price: {
-            value: params.amount,
-            currency_code: params.currency || "USD",
+            value: amount,
+            currency_code: currency,
           },
         },
       },
@@ -229,7 +233,7 @@ export async function createSubscriptionPlan(
       auto_bill_outstanding: true,
       setup_fee: {
         value: "0",
-        currency_code: params.currency || "USD",
+        currency_code: currency,
       },
       setup_fee_failure_action: "CONTINUE",
       payment_failure_threshold: 3,

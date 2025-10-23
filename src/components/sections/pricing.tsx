@@ -19,8 +19,9 @@ export default function PricingSection() {
   const [isProcessing, setIsProcessing] = useState(false);
   const { isDesktop } = useWindowSize();
   const [offerEndDate, setOfferEndDate] = useState<Date | null>(null);
+  const [dynamicPricing, setDynamicPricing] = useState<any>(null);
 
-  // Fetch timer end date from centralized API
+  // Fetch timer end date and pricing from centralized API
   useEffect(() => {
     async function fetchTimer() {
       try {
@@ -44,7 +45,18 @@ export default function PricingSection() {
       }
     }
 
+    async function fetchPricing() {
+      try {
+        const response = await fetch('/api/pricing');
+        const data = await response.json();
+        setDynamicPricing(data);
+      } catch (error) {
+        console.error('Error fetching pricing:', error);
+      }
+    }
+
     fetchTimer();
+    fetchPricing();
   }, []);
 
   const handleToggle = () => {
@@ -54,6 +66,9 @@ export default function PricingSection() {
   const handlePayPalCheckout = async () => {
     setIsProcessing(true);
     try {
+      // Use dynamic lifetime price if available
+      const lifetimePrice = dynamicPricing?.lifetime?.price || 39.00;
+
       // Call API to create PayPal order for lifetime deal
       const response = await fetch("/api/payment/create-order", {
         method: "POST",
@@ -61,7 +76,7 @@ export default function PricingSection() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: "39.00",
+          amount: lifetimePrice.toFixed(2),
         }),
       });
 
@@ -132,7 +147,33 @@ export default function PricingSection() {
         <span className="ml-2 font-semibold">Yearly</span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {siteConfig.pricing.map((plan, index) => (
+        {siteConfig.pricing.map((plan, index) => {
+          // Override pricing with dynamic pricing if available
+          let displayPrice = plan.price;
+          let displayYearlyPrice = plan.yearlyPrice;
+          let displayCredits = plan.features[0]; // First feature is usually credits
+
+          if (dynamicPricing) {
+            if (plan.name === "STARTER") {
+              displayPrice = `$${dynamicPricing.starter.monthly.price}`;
+              displayYearlyPrice = `$${dynamicPricing.starter.yearly.pricePerMonth}`;
+              displayCredits = `${dynamicPricing.starter.monthly.credits} conversions/month`;
+            } else if (plan.name === "PROFESSIONAL") {
+              displayPrice = `$${dynamicPricing.professional.monthly.price}`;
+              displayYearlyPrice = `$${dynamicPricing.professional.yearly.pricePerMonth}`;
+              displayCredits = `${dynamicPricing.professional.monthly.credits} conversions/month`;
+            } else if (plan.name === "LIFETIME") {
+              displayPrice = `$${dynamicPricing.lifetime.price}`;
+              displayYearlyPrice = `$${dynamicPricing.lifetime.price}`;
+              displayCredits = "Unlimited conversions";
+            }
+          }
+
+          // Update features array with dynamic credits
+          const updatedFeatures = [...plan.features];
+          updatedFeatures[0] = displayCredits;
+
+          return (
           <motion.div
             key={index}
             initial={{ y: 50, opacity: 0 }}
@@ -161,7 +202,7 @@ export default function PricingSection() {
               </p>
               <p className="mt-6 flex items-center justify-center gap-x-2">
                 <span className="text-5xl font-bold tracking-tight text-gray-900">
-                  {isMonthly ? plan.price : plan.yearlyPrice}
+                  {isMonthly ? displayPrice : displayYearlyPrice}
                 </span>
                 {plan.period !== "Next 3 months" && (
                   <span className="text-sm font-semibold leading-6 tracking-wide text-gray-600">
@@ -184,7 +225,7 @@ export default function PricingSection() {
               )}
 
               <ul className="mt-5 gap-2 flex flex-col">
-                {plan.features.map((feature, idx) => (
+                {updatedFeatures.map((feature, idx) => (
                   <li key={idx} className="flex items-center">
                     <Check className="mr-2 h-4 w-4 text-primary" />
                     <span>{feature}</span>
@@ -246,7 +287,8 @@ export default function PricingSection() {
               </p>
             </div>
           </motion.div>
-        ))}
+        );
+        })}
       </div>
     </Section>
   );

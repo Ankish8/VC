@@ -47,7 +47,7 @@ export default function PrivacyPolicy() {
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">6. Contact Us</h2>
           <p className="mb-4">If you have any questions about this Privacy Policy, please contact us at:</p>
-          <p className="mb-4">Email: support@vectorcraft.com</p>
+          <p className="mb-4">Email: support@thevectorcraft.com</p>
         </div>
       </div>
       <Footer />

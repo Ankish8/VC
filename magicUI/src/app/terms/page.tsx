@@ -59,7 +59,7 @@ export default function TermsOfService() {
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">9. Contact Information</h2>
           <p className="mb-4">For questions about these Terms of Service, contact us at:</p>
-          <p className="mb-4">Email: support@vectorcraft.com</p>
+          <p className="mb-4">Email: support@thevectorcraft.com</p>
         </div>
       </div>
       <Footer />

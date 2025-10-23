@@ -6,6 +6,7 @@ import { convertImageToSVG } from "@/lib/fal-client";
 import { ConversionStatus } from "@/types";
 import { writeFile } from "fs/promises";
 import path from "path";
+import { deductCredit, getUserCreditStatus } from "@/lib/credits";
 
 interface ConvertRequest {
   imageUrl: string;
@@ -44,6 +45,53 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Missing required fields: imageUrl, filename, dimensions, or fileSize" },
         { status: 400 }
+      );
+    }
+
+    // Check user's credit status before processing
+    const creditStatus = await getUserCreditStatus(user.id);
+
+    // Allow if unlimited (lifetime plan)
+    if (!creditStatus.isUnlimited) {
+      // Check if user has credits
+      if (creditStatus.remaining <= 0) {
+        const resetDateStr = creditStatus.resetDate
+          ? new Date(creditStatus.resetDate).toLocaleDateString()
+          : "N/A";
+
+        return NextResponse.json(
+          {
+            error: "Insufficient credits",
+            message: `You have used all your credits for this billing cycle. Your credits will reset on ${resetDateStr}. Upgrade your plan for more conversions.`,
+            creditsRemaining: 0,
+            resetDate: creditStatus.resetDate,
+          },
+          { status: 403 }
+        );
+      }
+
+      // Soft warning if running low (10% or less remaining)
+      if (creditStatus.percentage <= 10 && creditStatus.percentage > 0) {
+        console.log(
+          `[Convert API] User ${user.id} has ${creditStatus.remaining} credits remaining (${creditStatus.percentage.toFixed(0)}%)`
+        );
+      }
+
+      // Attempt to deduct credit
+      const deducted = await deductCredit(user.id);
+
+      if (!deducted) {
+        return NextResponse.json(
+          {
+            error: "Failed to deduct credit",
+            message: "Unable to process conversion. Please try again or contact support.",
+          },
+          { status: 500 }
+        );
+      }
+
+      console.log(
+        `[Convert API] Deducted 1 credit from user ${user.id}. Remaining: ${creditStatus.remaining - 1}`
       );
     }
 

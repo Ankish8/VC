@@ -22,6 +22,21 @@ interface ShowcaseImage {
 }
 
 function HeroPriceDropBanner() {
+  const [lifetimePrice, setLifetimePrice] = useState<number>(39);
+
+  useEffect(() => {
+    fetch("/api/pricing")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.lifetime?.price) {
+          setLifetimePrice(data.lifetime.price);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to fetch pricing:", error);
+      });
+  }, []);
+
   return (
     <motion.div
       className="mb-6 flex items-center justify-center gap-4"
@@ -33,7 +48,7 @@ function HeroPriceDropBanner() {
         PRICE DROP
       </span>
       <span className="text-lg text-gray-600">
-        From <s className="text-gray-500">$295</s> - <span className="font-bold text-gray-900">$39 Only</span>
+        From <s className="text-gray-500">$295</s> - <span className="font-bold text-gray-900">${lifetimePrice} Only</span>
       </span>
     </motion.div>
   );
