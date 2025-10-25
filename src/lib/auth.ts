@@ -95,6 +95,7 @@ const authConfig: NextAuthConfig = {
     signOut: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
 };
 
 export const authOptions = authConfig;
