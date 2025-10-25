@@ -16,9 +16,23 @@ const PAYPAL_API_BASE =
  * Get PayPal access token for API calls
  */
 async function getAccessToken(): Promise<string> {
+  if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
+    console.error("PayPal credentials missing:", {
+      hasClientId: !!PAYPAL_CLIENT_ID,
+      hasClientSecret: !!PAYPAL_CLIENT_SECRET,
+      mode: PAYPAL_MODE,
+    });
+    throw new Error("PayPal credentials are not configured");
+  }
+
   const auth = Buffer.from(
     `${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`
   ).toString("base64");
+
+  console.log("Requesting PayPal access token:", {
+    apiBase: PAYPAL_API_BASE,
+    mode: PAYPAL_MODE,
+  });
 
   const response = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
     method: "POST",
@@ -30,7 +44,13 @@ async function getAccessToken(): Promise<string> {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to get PayPal access token");
+    const errorText = await response.text();
+    console.error("PayPal access token error:", {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorText,
+    });
+    throw new Error(`Failed to get PayPal access token: ${response.status} ${errorText}`);
   }
 
   const data = await response.json();

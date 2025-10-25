@@ -16,6 +16,14 @@ export async function POST(request: NextRequest) {
       process.env.NEXTAUTH_URL ||
       "http://localhost:3000";
 
+    console.log("Creating PayPal order:", {
+      amount,
+      baseUrl,
+      hasClientId: !!process.env.PAYPAL_CLIENT_ID,
+      hasClientSecret: !!process.env.PAYPAL_CLIENT_SECRET,
+      mode: process.env.PAYPAL_MODE,
+    });
+
     // Create PayPal order
     const order = await createPayPalOrder({
       amount,
@@ -25,13 +33,21 @@ export async function POST(request: NextRequest) {
       cancelUrl: `${baseUrl}/?payment=cancelled`,
     });
 
+    console.log("PayPal order created successfully:", {
+      orderId: order.id,
+      status: order.status,
+    });
+
     return NextResponse.json({
       success: true,
       orderId: order.id,
       approvalUrl: order.approvalUrl,
     });
   } catch (error: any) {
-    console.error("Error creating PayPal order:", error);
+    console.error("Error creating PayPal order:", {
+      message: error.message,
+      stack: error.stack,
+    });
     return NextResponse.json(
       {
         success: false,
