@@ -100,6 +100,13 @@ model SiteSettings {
   starterCredits        Int      @default(100) // Credits per month for Starter plan
   proCredits            Int      @default(500) // Credits per month for Professional plan
 
+  // PayPal Configuration
+  paypalMode              String   @default("sandbox") // sandbox or live
+  paypalSandboxClientId   String?  // PayPal Sandbox Client ID
+  paypalSandboxSecret     String?  // PayPal Sandbox Secret (encrypted)
+  paypalLiveClientId      String?  // PayPal Live Client ID
+  paypalLiveSecret        String?  // PayPal Live Secret (encrypted)
+
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 }

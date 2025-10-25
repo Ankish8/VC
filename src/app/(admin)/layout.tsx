@@ -1,9 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Home, Image, LogOut, Settings } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
 export default async function AdminLayout({
   children,
@@ -14,7 +12,7 @@ export default async function AdminLayout({
 
   // Redirect if not authenticated or not admin
   if (!session?.user) {
-    redirect("/login?callbackUrl=/admin/showcase");
+    redirect("/login?callbackUrl=/admin");
   }
 
   const isAdmin = (session.user as any).isAdmin;
@@ -24,48 +22,19 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Admin Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <h1 className="text-2xl font-bold">VectorCraft Admin</h1>
-              <nav className="flex items-center gap-4">
-                <Link href="/admin/showcase">
-                  <Button variant="ghost" size="sm" className="gap-2">
-                    <Image className="h-4 w-4" />
-                    Showcase Images
-                  </Button>
-                </Link>
-                <Link href="/admin/settings">
-                  <Button variant="ghost" size="sm" className="gap-2">
-                    <Settings className="h-4 w-4" />
-                    Settings
-                  </Button>
-                </Link>
-              </nav>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link href="/">
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <Home className="h-4 w-4" />
-                  Back to Site
-                </Button>
-              </Link>
-              <form action="/api/auth/signout" method="POST">
-                <Button variant="outline" size="sm" className="gap-2" type="submit">
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
-                </Button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="flex h-screen overflow-hidden bg-background">
+      {/* Sidebar */}
+      <AdminSidebar />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">{children}</main>
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <main className="flex-1 overflow-y-auto">
+          <div className="container mx-auto px-6 py-8 max-w-7xl">
+            {children}
+          </div>
+        </main>
+      </div>
+
       <Toaster />
     </div>
   );

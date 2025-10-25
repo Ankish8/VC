@@ -1,37 +1,107 @@
 /**
  * PayPal REST API Integration
  * Uses PayPal Standard (redirect flow)
+ * Credentials are sourced from database with environment variable fallback
  */
 
-const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID?.trim() || "";
-const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET?.trim() || "";
-const PAYPAL_MODE = process.env.PAYPAL_MODE?.trim() || "sandbox"; // sandbox or live
+import { prisma } from "@/lib/db";
 
-const PAYPAL_API_BASE =
-  PAYPAL_MODE === "live"
-    ? "https://api-m.paypal.com"
-    : "https://api-m.sandbox.paypal.com";
+// Cache for PayPal credentials to avoid database queries on every request
+let credentialsCache: {
+  mode: string;
+  clientId: string;
+  clientSecret: string;
+  lastFetch: number;
+} | null = null;
+
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Get PayPal credentials from database or environment variables
+ */
+async function getPayPalCredentials(): Promise<{
+  mode: string;
+  clientId: string;
+  clientSecret: string;
+}> {
+  // Check cache first
+  if (credentialsCache && Date.now() - credentialsCache.lastFetch < CACHE_TTL) {
+    return {
+      mode: credentialsCache.mode,
+      clientId: credentialsCache.clientId,
+      clientSecret: credentialsCache.clientSecret,
+    };
+  }
+
+  try {
+    // Try to get credentials from database
+    const settings = await prisma.siteSettings.findFirst();
+
+    if (settings) {
+      const mode = settings.paypalMode || "sandbox";
+      const clientId =
+        mode === "sandbox"
+          ? settings.paypalSandboxClientId
+          : settings.paypalLiveClientId;
+      const clientSecret =
+        mode === "sandbox"
+          ? settings.paypalSandboxSecret
+          : settings.paypalLiveSecret;
+
+      if (clientId && clientSecret) {
+        // Update cache
+        credentialsCache = {
+          mode,
+          clientId,
+          clientSecret,
+          lastFetch: Date.now(),
+        };
+
+        return { mode, clientId, clientSecret };
+      }
+    }
+  } catch (error) {
+    console.warn("Failed to fetch PayPal credentials from database, falling back to env vars:", error);
+  }
+
+  // Fallback to environment variables
+  const mode = process.env.PAYPAL_MODE?.trim() || "sandbox";
+  const clientId = process.env.PAYPAL_CLIENT_ID?.trim() || "";
+  const clientSecret = process.env.PAYPAL_CLIENT_SECRET?.trim() || "";
+
+  if (!clientId || !clientSecret) {
+    throw new Error("PayPal credentials are not configured in database or environment variables");
+  }
+
+  // Update cache
+  credentialsCache = {
+    mode,
+    clientId,
+    clientSecret,
+    lastFetch: Date.now(),
+  };
+
+  return { mode, clientId, clientSecret };
+}
 
 /**
  * Get PayPal access token for API calls
  */
 async function getAccessToken(): Promise<string> {
-  if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
-    console.error("PayPal credentials missing:", {
-      hasClientId: !!PAYPAL_CLIENT_ID,
-      hasClientSecret: !!PAYPAL_CLIENT_SECRET,
-      mode: PAYPAL_MODE,
-    });
-    throw new Error("PayPal credentials are not configured");
-  }
+  const { mode, clientId, clientSecret } = await getPayPalCredentials();
+
+  const PAYPAL_API_BASE =
+    mode === "live"
+      ? "https://api-m.paypal.com"
+      : "https://api-m.sandbox.paypal.com";
 
   const auth = Buffer.from(
-    `${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`
+    `${clientId}:${clientSecret}`
   ).toString("base64");
 
   console.log("Requesting PayPal access token:", {
     apiBase: PAYPAL_API_BASE,
-    mode: PAYPAL_MODE,
+    mode,
   });
 
   const response = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
@@ -57,6 +127,13 @@ async function getAccessToken(): Promise<string> {
   return data.access_token;
 }
 
+/**
+ * Clear credentials cache (call this when updating PayPal config)
+ */
+export function clearPayPalCredentialsCache() {
+  credentialsCache = null;
+}
+
 export interface CreateOrderParams {
   amount: string;
   currency?: string;
@@ -78,6 +155,12 @@ export async function createPayPalOrder(
   params: CreateOrderParams
 ): Promise<PayPalOrder> {
   const accessToken = await getAccessToken();
+  const { mode } = await getPayPalCredentials();
+
+  const PAYPAL_API_BASE =
+    mode === "live"
+      ? "https://api-m.paypal.com"
+      : "https://api-m.sandbox.paypal.com";
 
   const orderData = {
     intent: "CAPTURE",
@@ -163,6 +246,12 @@ export async function capturePayPalOrder(
   orderId: string
 ): Promise<CaptureOrderResult> {
   const accessToken = await getAccessToken();
+  const { mode } = await getPayPalCredentials();
+
+  const PAYPAL_API_BASE =
+    mode === "live"
+      ? "https://api-m.paypal.com"
+      : "https://api-m.sandbox.paypal.com";
 
   const response = await fetch(
     `${PAYPAL_API_BASE}/v2/checkout/orders/${orderId}/capture`,
@@ -226,6 +315,12 @@ export async function createSubscriptionPlan(
   currency: string = "USD"
 ): Promise<SubscriptionPlan> {
   const accessToken = await getAccessToken();
+  const { mode } = await getPayPalCredentials();
+
+  const PAYPAL_API_BASE =
+    mode === "live"
+      ? "https://api-m.paypal.com"
+      : "https://api-m.sandbox.paypal.com";
 
   const planData = {
     product_id: await getOrCreateProduct("VectorCraft"),
@@ -287,6 +382,12 @@ export async function createSubscriptionPlan(
  */
 async function getOrCreateProduct(name: string): Promise<string> {
   const accessToken = await getAccessToken();
+  const { mode } = await getPayPalCredentials();
+
+  const PAYPAL_API_BASE =
+    mode === "live"
+      ? "https://api-m.paypal.com"
+      : "https://api-m.sandbox.paypal.com";
 
   // For simplicity, we'll create a product or use a hardcoded one
   // In production, you might want to store this in your database
@@ -342,6 +443,12 @@ export async function createSubscription(
   params: CreateSubscriptionParams
 ): Promise<PayPalSubscription> {
   const accessToken = await getAccessToken();
+  const { mode } = await getPayPalCredentials();
+
+  const PAYPAL_API_BASE =
+    mode === "live"
+      ? "https://api-m.paypal.com"
+      : "https://api-m.sandbox.paypal.com";
 
   const subscriptionData = {
     plan_id: params.planId,
@@ -422,6 +529,12 @@ export async function getSubscriptionDetails(
   subscriptionId: string
 ): Promise<SubscriptionDetails> {
   const accessToken = await getAccessToken();
+  const { mode } = await getPayPalCredentials();
+
+  const PAYPAL_API_BASE =
+    mode === "live"
+      ? "https://api-m.paypal.com"
+      : "https://api-m.sandbox.paypal.com";
 
   const response = await fetch(
     `${PAYPAL_API_BASE}/v1/billing/subscriptions/${subscriptionId}`,
@@ -450,6 +563,12 @@ export async function cancelSubscription(
   reason?: string
 ): Promise<void> {
   const accessToken = await getAccessToken();
+  const { mode } = await getPayPalCredentials();
+
+  const PAYPAL_API_BASE =
+    mode === "live"
+      ? "https://api-m.paypal.com"
+      : "https://api-m.sandbox.paypal.com";
 
   const response = await fetch(
     `${PAYPAL_API_BASE}/v1/billing/subscriptions/${subscriptionId}/cancel`,

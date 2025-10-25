@@ -167,25 +167,25 @@ export default function AdminTimerSettings() {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Current Status */}
-          <div className="p-4 bg-slate-50 rounded-lg border">
+          <div className="p-4 bg-muted/50 rounded-lg border">
             <h3 className="font-semibold mb-2">Current Status</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-600">Status:</span>
-                <span className={`font-semibold ${settings?.enabled ? 'text-green-600' : 'text-red-600'}`}>
+                <span className="text-muted-foreground">Status:</span>
+                <span className={`font-semibold ${settings?.enabled ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                   {settings?.enabled ? 'Enabled' : 'Disabled'}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Time Remaining:</span>
-                <span className="font-semibold text-blue-600">{timeLeft}</span>
+                <span className="text-muted-foreground">Time Remaining:</span>
+                <span className="font-semibold text-blue-600 dark:text-blue-400">{timeLeft}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Duration:</span>
+                <span className="text-muted-foreground">Duration:</span>
                 <span className="font-semibold">{settings?.durationDays} days</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Last Reset:</span>
+                <span className="text-muted-foreground">Last Reset:</span>
                 <span className="font-semibold">
                   {settings?.lastResetAt
                     ? new Date(settings.lastResetAt).toLocaleString()
@@ -193,7 +193,7 @@ export default function AdminTimerSettings() {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Ends At:</span>
+                <span className="text-muted-foreground">Ends At:</span>
                 <span className="font-semibold">
                   {settings?.endDate
                     ? new Date(settings.endDate).toLocaleString()
@@ -208,7 +208,7 @@ export default function AdminTimerSettings() {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label htmlFor="timer-enabled">Enable Timer</Label>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-muted-foreground">
                   Show countdown timer on landing page
                 </p>
               </div>
@@ -230,7 +230,7 @@ export default function AdminTimerSettings() {
                 onChange={(e) => setDurationDays(parseInt(e.target.value) || 1)}
                 placeholder="7"
               />
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-muted-foreground">
                 How many days the countdown should run before auto-resetting
               </p>
             </div>
@@ -263,8 +263,8 @@ export default function AdminTimerSettings() {
             </Button>
           </div>
 
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
+          <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-lg">
+            <p className="text-sm text-blue-800 dark:text-blue-400">
               <strong>Auto-Loop:</strong> When the timer reaches 0, it automatically resets to the configured duration.
               This happens on the next page load after expiry.
             </p>
