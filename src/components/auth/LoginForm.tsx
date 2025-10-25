@@ -55,6 +55,7 @@ export function LoginForm() {
         email: data.email,
         password: data.password,
         redirect: false,
+        callbackUrl: "/convert",
       });
 
       console.log("[LoginForm] Sign in result:", result);
@@ -67,9 +68,9 @@ export function LoginForm() {
       }
 
       if (result?.ok) {
-        console.log("[LoginForm] Sign in successful, redirecting...");
-        router.push("/convert");
-        router.refresh();
+        console.log("[LoginForm] Sign in successful, redirecting to /convert");
+        // Use window.location for a hard redirect to ensure session is loaded
+        window.location.href = "/convert";
       } else {
         console.error("[LoginForm] Sign in failed with no error message");
         setError("Unable to sign in. Please check your credentials and try again.");

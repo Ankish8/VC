@@ -13,6 +13,12 @@ export async function middleware(request: NextRequest) {
 
   const isAuthenticated = !!token;
 
+  console.log("[Middleware]", {
+    pathname,
+    isAuthenticated,
+    hasToken: !!token,
+  });
+
   // Protected routes that require authentication
   const protectedRoutes = ["/convert", "/history"];
   const isProtectedRoute = protectedRoutes.some((route) =>
