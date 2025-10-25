@@ -45,40 +45,31 @@ export function LoginForm() {
   });
 
   async function onSubmit(data: LoginFormValues) {
+    setIsLoading(true);
+    setError(null);
+
+    console.log("[LoginForm] Attempting login for:", data.email);
+
     try {
-      setIsLoading(true);
-      setError(null);
-
-      console.log("[LoginForm] Attempting login for:", data.email);
-
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: false,
+        redirect: true,
         callbackUrl: "/convert",
       });
 
       console.log("[LoginForm] Sign in result:", result);
 
+      // If redirect is true, this code won't execute on success
+      // It only runs if there's an error
       if (result?.error) {
         console.error("[LoginForm] Sign in error:", result.error);
         setError("Invalid email or password. Please try again.");
         setIsLoading(false);
-        return;
-      }
-
-      if (result?.ok) {
-        console.log("[LoginForm] Sign in successful, redirecting to /convert");
-        // Use window.location for a hard redirect to ensure session is loaded
-        window.location.href = "/convert";
-      } else {
-        console.error("[LoginForm] Sign in failed with no error message");
-        setError("Unable to sign in. Please check your credentials and try again.");
-        setIsLoading(false);
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
       console.error("[LoginForm] Login error:", err);
+      setError("An unexpected error occurred. Please try again.");
       setIsLoading(false);
     }
   }
