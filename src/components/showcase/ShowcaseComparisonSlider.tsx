@@ -22,6 +22,7 @@ export function ShowcaseComparisonSlider({
   return (
     <div className={cn("relative w-full h-full", className)}>
       <ReactCompareSlider
+        changePositionOnHover={true}
         itemOne={
           <ReactCompareSliderImage
             src={rasterImageUrl}
