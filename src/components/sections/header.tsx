@@ -64,10 +64,9 @@ export default function Header() {
                 onClick={handleSmoothScroll}
                 className={cn(
                   buttonVariants({ variant: "default" }),
-                  "w-full sm:w-auto text-white flex gap-2 bg-black hover:bg-gray-800"
+                  "w-full sm:w-auto text-white bg-black hover:bg-gray-800"
                 )}
               >
-                <Icons.logo className="h-6 w-6" />
                 Buy Now
               </Link>
             </div>

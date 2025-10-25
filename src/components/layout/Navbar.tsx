@@ -12,11 +12,11 @@ import {
   User,
   Menu,
   X,
-  ImageIcon,
   History,
   Shield,
   Settings,
 } from "lucide-react";
+import { Icons } from "@/components/icons";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -42,7 +42,7 @@ interface NavLink {
 }
 
 const navLinks: NavLink[] = [
-  { href: "/convert", label: "Convert", icon: ImageIcon },
+  { href: "/convert", label: "Convert", icon: Icons.logo as any },
   { href: "/history", label: "History", icon: History },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
@@ -101,7 +101,7 @@ export function Navbar() {
               href="/convert"
               className="flex items-center gap-2 font-semibold text-sm hover:opacity-80 transition-opacity"
             >
-              <ImageIcon className="h-5 w-5 text-primary" />
+              <Icons.logo className="h-5 w-5 text-primary" />
               <span className="hidden sm:inline">VectorCraft</span>
               <span className="sm:hidden">VC</span>
             </Link>

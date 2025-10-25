@@ -17,10 +17,9 @@ export default function CtaSection() {
           href="/signup"
           className={cn(
             buttonVariants({ variant: "default" }),
-            "w-full sm:w-auto text-background flex gap-2"
+            "w-full sm:w-auto text-background"
           )}
         >
-          <Icons.logo className="h-6 w-6" />
           Get started for free
         </Link>
       </div>

@@ -10,6 +10,7 @@ import {
   Settings,
   HelpCircle,
 } from "lucide-react";
+import { Icons } from "@/components/icons";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
@@ -24,7 +25,7 @@ const navigation = [
   {
     name: "Convert",
     href: "/convert",
-    icon: Sparkles,
+    icon: Icons.logo as any,
   },
   {
     name: "History",
@@ -55,7 +56,7 @@ export function Sidebar({ conversions }: SidebarProps) {
       <div className="flex h-14 items-center px-4 border-b">
         <Link href="/convert" className="flex items-center gap-2 font-semibold text-sm">
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Sparkles className="h-3.5 w-3.5" />
+            <Icons.logo className="h-3.5 w-3.5" />
           </div>
           <span>SVG Converter</span>
         </Link>
