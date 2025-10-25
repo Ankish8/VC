@@ -19,29 +19,34 @@ export const metadata: Metadata = {
 export default function RegisterPage() {
   return (
     <div className="w-full max-w-md mx-auto space-y-6">
-      <Link href="/" className="flex justify-center">
-        <Image
-          src="/logo-black.svg"
-          alt="VectorCraft"
-          width={180}
-          height={40}
-          className="dark:hidden"
-          priority
-        />
-        <Image
-          src="/logo-white.svg"
-          alt="VectorCraft"
-          width={180}
-          height={40}
-          className="hidden dark:block"
-          priority
-        />
-      </Link>
+      <div className="text-center space-y-2">
+        <Link href="/" className="flex justify-center">
+          <Image
+            src="/logo-black.svg"
+            alt="VectorCraft"
+            width={180}
+            height={40}
+            className="dark:hidden"
+            priority
+          />
+          <Image
+            src="/logo-white.svg"
+            alt="VectorCraft"
+            width={180}
+            height={40}
+            className="hidden dark:block"
+            priority
+          />
+        </Link>
+        <p className="text-sm text-muted-foreground">
+          AI-Powered SVG Converter
+        </p>
+      </div>
       <Card>
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+          <CardTitle className="text-2xl font-bold">Join VectorCraft</CardTitle>
           <CardDescription>
-            Enter your details below to create your account and start converting images
+            Create your account and start converting images to scalable vectors
           </CardDescription>
         </CardHeader>
         <CardContent>
