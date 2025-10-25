@@ -174,7 +174,7 @@ function HeroImage() {
       transition={{ delay: 1.2, duration: 1, ease }}
     >
       {/* Main Comparison Slider */}
-      <div className="w-full max-w-4xl bg-gray-100 rounded-lg overflow-hidden shadow-sm" style={{ height: "550px" }}>
+      <div className="w-full max-w-4xl bg-gray-100 rounded-lg overflow-hidden shadow-sm aspect-[4/3] md:aspect-[16/9] lg:h-[550px] lg:aspect-auto">
         <ShowcaseComparisonSlider
           rasterImageUrl={selectedImage.rasterImageUrl}
           svgUrl={selectedImage.svgUrl}

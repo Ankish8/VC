@@ -268,7 +268,7 @@ export default function Features({
               </Accordion.Root>
             </div>
             <div
-              className={`h-[450px] min-h-[300px] w-full  ${
+              className={`hidden lg:block lg:h-[450px] lg:min-h-[300px] w-full  ${
                 ltr && "lg:order-1"
               }`}
             >
@@ -310,40 +310,46 @@ export default function Features({
               )}
             </div>
 
-            <ul
-              ref={carouselRef}
-              className=" flex h-full snap-x flex-nowrap overflow-x-auto py-10 [-ms-overflow-style:none] [-webkit-mask-image:linear-gradient(90deg,transparent,black_20%,white_80%,transparent)] [mask-image:linear-gradient(90deg,transparent,black_20%,white_80%,transparent)] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden snap-mandatory"
-              style={{
-                padding: "50px calc(50%)",
-              }}
-            >
+            <div className="flex flex-col gap-8 lg:hidden w-full">
               {data.map((item, index) => (
                 <div
                   key={item.id}
-                  className="card relative mr-8 grid h-full max-w-60 shrink-0 items-start justify-center py-4 last:mr-0"
+                  className="card relative w-full"
                   onClick={() => setCurrentIndex(index)}
-                  style={{
-                    scrollSnapAlign: "center",
-                  }}
                 >
-                  <div className="absolute bottom-0 left-0 right-auto top-0 h-0.5 w-full overflow-hidden rounded-lg bg-neutral-300/50 dark:bg-neutral-300/30">
-                    <div
-                      className={`absolute left-0 top-0 h-full ${
-                        currentIndex === index ? "w-full" : "w-0"
-                      } origin-top bg-primary transition-all ease-linear`}
-                      style={{
-                        transitionDuration:
-                          currentIndex === index ? `${collapseDelay}ms` : "0s",
-                      }}
-                    ></div>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-primary/10 rounded-full shrink-0 flex items-center justify-center">
+                        {item.icon}
+                      </div>
+                      <h2 className="text-xl font-bold">{item.title}</h2>
+                    </div>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {item.content}
+                    </p>
+                    {item.image && (
+                      <div className="w-full mt-2 rounded-lg overflow-hidden shadow-lg">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="w-full h-auto object-contain"
+                        />
+                      </div>
+                    )}
+                    {item.video && (
+                      <video
+                        preload="auto"
+                        src={item.video}
+                        className="w-full max-w-md mx-auto rounded-lg object-cover shadow-lg mt-2"
+                        autoPlay
+                        loop
+                        muted
+                      />
+                    )}
                   </div>
-                  <h2 className="text-xl font-bold">{item.title}</h2>
-                  <p className="mx-0 max-w-sm text-balance text-sm">
-                    {item.content}
-                  </p>
                 </div>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
       </div>
