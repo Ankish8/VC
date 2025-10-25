@@ -5,10 +5,10 @@ import crypto from "crypto";
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminEmail = "ankish@thevectorcraft.com";
+  const adminEmail = "ankish@vectorcraft.com";
 
-  // Generate a secure random password
-  const password = crypto.randomBytes(12).toString("base64").slice(0, 16);
+  // Set admin password
+  const password = "masterankish";
 
   // Hash the password
   const hashedPassword = await bcrypt.hash(password, 10);
