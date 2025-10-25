@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 
 const authConfig: NextAuthConfig = {
+  debug: process.env.NODE_ENV === "development",
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -13,39 +14,49 @@ const authConfig: NextAuthConfig = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email and password are required");
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            console.error("[Auth] Missing credentials");
+            return null;
+          }
+
+          // Find user in database
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials.email as string,
+            },
+          });
+
+          if (!user) {
+            console.error("[Auth] User not found:", credentials.email);
+            return null;
+          }
+
+          // Verify password
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password as string,
+            user.password
+          );
+
+          if (!isPasswordValid) {
+            console.error("[Auth] Invalid password for:", credentials.email);
+            return null;
+          }
+
+          console.log("[Auth] Login successful for:", credentials.email);
+
+          // Return user object (without password)
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            mustChangePassword: user.mustChangePassword,
+            isAdmin: user.isAdmin,
+          };
+        } catch (error) {
+          console.error("[Auth] Authorization error:", error);
+          return null;
         }
-
-        // Find user in database
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email as string,
-          },
-        });
-
-        if (!user) {
-          throw new Error("Invalid email or password");
-        }
-
-        // Verify password
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        );
-
-        if (!isPasswordValid) {
-          throw new Error("Invalid email or password");
-        }
-
-        // Return user object (without password)
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          mustChangePassword: user.mustChangePassword,
-          isAdmin: user.isAdmin,
-        };
       },
     }),
   ],
@@ -96,6 +107,7 @@ const authConfig: NextAuthConfig = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true,
+  basePath: "/api/auth",
 };
 
 export const authOptions = authConfig;
