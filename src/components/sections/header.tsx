@@ -36,7 +36,6 @@ export default function Header() {
       className={
         "sticky top-0 z-50 py-2 bg-white/60 backdrop-blur"
       }
-      style={{ top: '64px' }}
     >
       <div className="flex justify-between items-center container mx-auto">
         <Link
