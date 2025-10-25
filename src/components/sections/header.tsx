@@ -9,9 +9,11 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { handleSmoothScroll } from "@/lib/smooth-scroll";
+import { useSession } from "next-auth/react";
 
 export default function Header() {
   const [addBorder, setAddBorder] = useState(false);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -53,12 +55,21 @@ export default function Header() {
             </nav>
 
             <div className="gap-2 flex">
-              <Link
-                href="/login"
-                className={buttonVariants({ variant: "outline" })}
-              >
-                Login
-              </Link>
+              {session ? (
+                <Link
+                  href="/convert"
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  Login
+                </Link>
+              )}
               <Link
                 href="#pricing"
                 onClick={handleSmoothScroll}

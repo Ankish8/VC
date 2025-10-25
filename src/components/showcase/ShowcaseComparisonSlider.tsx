@@ -40,11 +40,11 @@ export function ShowcaseComparisonSlider({
         style={{ height: "100%" }}
       />
 
-      {/* Simple labels like reference */}
-      <div className="absolute top-4 left-4 text-xs uppercase tracking-wider text-gray-400 font-semibold">
-        PIXELS
+      {/* Labels with semi-transparent background */}
+      <div className="absolute top-4 left-4 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-md text-xs uppercase tracking-wider text-white font-semibold">
+        RASTER
       </div>
-      <div className="absolute top-4 right-4 text-xs uppercase tracking-wider text-gray-400 font-semibold">
+      <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-md text-xs uppercase tracking-wider text-white font-semibold">
         VECTORS
       </div>
     </div>

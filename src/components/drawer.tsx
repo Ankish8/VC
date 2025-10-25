@@ -1,3 +1,5 @@
+"use client";
+
 import { Icons } from "@/components/icons";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -15,7 +17,10 @@ import Link from "next/link";
 import { IoMenuSharp } from "react-icons/io5";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { handleSmoothScroll } from "@/lib/smooth-scroll";
+import { useSession } from "next-auth/react";
+
 export default function drawerDemo() {
+  const { data: session } = useSession();
   return (
     <Drawer>
       <DrawerTrigger>
@@ -56,12 +61,21 @@ export default function drawerDemo() {
           </nav>
         </DrawerHeader>
         <DrawerFooter>
-          <Link
-            href="/login"
-            className={buttonVariants({ variant: "outline" })}
-          >
-            Login
-          </Link>
+          {session ? (
+            <Link
+              href="/convert"
+              className={buttonVariants({ variant: "outline" })}
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className={buttonVariants({ variant: "outline" })}
+            >
+              Login
+            </Link>
+          )}
           <Link
             href="#pricing"
             onClick={handleSmoothScroll}
