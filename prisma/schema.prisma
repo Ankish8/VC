@@ -39,6 +39,9 @@ model User {
   creditsRemaining    Int          @default(0) // Current available credits
   creditsTotal        Int          @default(0) // Total credits per cycle (100, 500, or unlimited)
   creditsResetDate    DateTime?    // When credits will reset (based on billing cycle)
+
+  // Onboarding fields
+  hasSeenTour         Boolean      @default(false) // Whether user has completed the onboarding tour
 }
 
 model Conversion {
@@ -98,4 +101,18 @@ model SiteSettings {
 
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    String   @default("new") // new, read, replied
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([status])
 }

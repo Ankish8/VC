@@ -6,6 +6,7 @@ import UrgencyBanner from "@/components/sections/urgency-banner";
 import { useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -14,14 +15,48 @@ export default function Contact() {
     subject: "",
     message: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Construct mailto link
-    const mailtoLink = `mailto:support@thevectorcraft.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
-    )}`;
-    window.location.href = mailtoLink;
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success(data.message || 'Thank you for contacting us! We will get back to you soon.');
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: ""
+        });
+      } else {
+        // Handle validation errors
+        if (data.details && Array.isArray(data.details)) {
+          data.details.forEach((detail: { field: string; message: string }) => {
+            toast.error(detail.message);
+          });
+        } else {
+          toast.error(data.error || 'Failed to submit form. Please try again.');
+        }
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast.error('An unexpected error occurred. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -147,12 +182,14 @@ export default function Contact() {
 
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className={cn(
                   buttonVariants({ variant: "default" }),
-                  "w-full"
+                  "w-full",
+                  isSubmitting && "opacity-50 cursor-not-allowed"
                 )}
               >
-                Send Message
+                {isSubmitting ? "Sending..." : "Send Message"}
               </button>
             </form>
           </div>
