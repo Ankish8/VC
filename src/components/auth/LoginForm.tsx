@@ -45,14 +45,10 @@ export function LoginForm() {
   });
 
   async function onSubmit(data: LoginFormValues) {
-    console.log("[LoginForm] Form submitted for:", data.email);
-
     setIsLoading(true);
     setError(null);
 
     try {
-      console.log("[LoginForm] Calling signIn...");
-
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
@@ -60,28 +56,22 @@ export function LoginForm() {
         callbackUrl: "/convert",
       });
 
-      console.log("[LoginForm] Sign in result:", JSON.stringify(result, null, 2));
-
       if (result?.error) {
-        console.error("[LoginForm] Sign in error:", result.error);
         setError("Invalid email or password. Please try again.");
         setIsLoading(false);
         return;
       }
 
       if (result?.ok) {
-        console.log("[LoginForm] Login successful, redirecting...");
         // Give a moment for the session to be established
         setTimeout(() => {
           window.location.href = "/convert";
         }, 500);
       } else {
-        console.error("[LoginForm] Unexpected result:", result);
         setError("Login failed. Please try again.");
         setIsLoading(false);
       }
     } catch (err) {
-      console.error("[LoginForm] Exception during login:", err);
       setError("An unexpected error occurred. Please try again.");
       setIsLoading(false);
     }

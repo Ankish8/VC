@@ -16,7 +16,6 @@ const authConfig: NextAuthConfig = {
       async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials?.password) {
-            console.error("[Auth] Missing credentials");
             return null;
           }
 
@@ -28,7 +27,6 @@ const authConfig: NextAuthConfig = {
           });
 
           if (!user) {
-            console.error("[Auth] User not found:", credentials.email);
             return null;
           }
 
@@ -39,11 +37,8 @@ const authConfig: NextAuthConfig = {
           );
 
           if (!isPasswordValid) {
-            console.error("[Auth] Invalid password for:", credentials.email);
             return null;
           }
-
-          console.log("[Auth] Login successful for:", credentials.email);
 
           // Return user object (without password)
           return {

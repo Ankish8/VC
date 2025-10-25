@@ -18,14 +18,6 @@ export async function middleware(request: NextRequest) {
 
   const isAuthenticated = !!token;
 
-  console.log("[Middleware]", {
-    pathname,
-    isAuthenticated,
-    hasToken: !!token,
-    tokenData: token ? { email: token.email, id: token.id } : null,
-    cookies: request.cookies.getAll().map((c) => c.name),
-  });
-
   // Protected routes that require authentication
   const protectedRoutes = ["/convert", "/history"];
   const isProtectedRoute = protectedRoutes.some((route) =>
