@@ -57,6 +57,7 @@ export function LoginForm() {
 
       if (result?.error) {
         setError("Invalid email or password. Please try again.");
+        setIsLoading(false);
         return;
       }
 
