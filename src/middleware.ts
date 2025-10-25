@@ -5,10 +5,15 @@ import { getToken } from "next-auth/jwt";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Get the session token
+  // Get the session token with proper configuration for production
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
+    secureCookie: process.env.NODE_ENV === "production",
+    cookieName:
+      process.env.NODE_ENV === "production"
+        ? "__Secure-next-auth.session-token"
+        : "next-auth.session-token",
   });
 
   const isAuthenticated = !!token;
@@ -17,6 +22,8 @@ export async function middleware(request: NextRequest) {
     pathname,
     isAuthenticated,
     hasToken: !!token,
+    tokenData: token ? { email: token.email, id: token.id } : null,
+    cookies: request.cookies.getAll().map((c) => c.name),
   });
 
   // Protected routes that require authentication
