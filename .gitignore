@@ -51,3 +51,7 @@ prisma/dev.db-journal
 # test files with credentials
 test-*.mjs
 check-*.mjs
+
+# user uploads
+public/uploads/
+vc.svg
