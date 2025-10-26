@@ -11,7 +11,8 @@ import {
   CreditCard,
   Home,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -38,6 +39,16 @@ const navigation: NavSection[] = [
         title: "Dashboard",
         href: "/admin",
         icon: LayoutDashboard,
+      },
+    ],
+  },
+  {
+    title: "User Management",
+    items: [
+      {
+        title: "Users",
+        href: "/admin/users",
+        icon: Users,
       },
     ],
   },

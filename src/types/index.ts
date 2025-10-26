@@ -57,3 +57,70 @@ export const IMAGE_CONSTRAINTS = {
   ALLOWED_FORMATS: ["image/png", "image/jpeg", "image/webp"],
   ALLOWED_EXTENSIONS: [".png", ".jpg", ".jpeg", ".webp"],
 } as const;
+
+// Admin User Management Types
+export interface AdminUser {
+  id: string;
+  email: string;
+  name: string | null;
+  createdAt: Date;
+  subscriptionType: string;
+  subscriptionStatus: string;
+  subscriptionPlan: string | null;
+  paypalSubscriptionId: string | null;
+  creditsRemaining: number;
+  creditsTotal: number;
+  totalConversions: number;
+  lastActivityAt: Date | null;
+  isPaused: boolean;
+}
+
+export interface UserDetailStats {
+  totalConversions: number;
+  thisMonthConversions: number;
+  creditsRemaining: number;
+  creditsTotal: number;
+  subscriptionStatus: string;
+  subscriptionPlan: string | null;
+  dailyUsage: DailyUsageData[];
+  monthlyTrends: MonthlyTrendData[];
+}
+
+export interface DailyUsageData {
+  date: string;
+  count: number;
+}
+
+export interface MonthlyTrendData {
+  month: string;
+  count: number;
+}
+
+export interface AdminDashboardStats {
+  totalUsers: number;
+  activeSubscriptions: number;
+  totalConversions: number;
+  monthlyRevenue: number;
+  freeUsers: number;
+  paidUsers: number;
+}
+
+export interface UserListFilters {
+  search?: string;
+  planType?: string;
+  status?: string;
+  sortBy?: "conversions" | "createdAt" | "email";
+  sortOrder?: "asc" | "desc";
+}
+
+export interface PaginatedUsersResponse {
+  users: AdminUser[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}

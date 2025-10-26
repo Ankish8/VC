@@ -1,12 +1,13 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LayoutDashboard, Users, Image, DollarSign, Activity, CreditCard } from "lucide-react";
+import { LayoutDashboard, Users, Image, DollarSign, Activity, CreditCard, TrendingUp, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-
-export const metadata = {
-  title: "Admin Dashboard | VectorCraft",
-  description: "VectorCraft administration dashboard",
-};
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import { AdminDashboardStats } from "@/types";
 
 const quickLinks = [
   {
@@ -36,20 +37,73 @@ const quickLinks = [
 ];
 
 export default function AdminDashboardPage() {
+  const [stats, setStats] = useState<AdminDashboardStats | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const fetchStats = async (showRefreshingState = false) => {
+    try {
+      if (showRefreshingState) {
+        setIsRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
+
+      const response = await fetch("/api/admin/stats");
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to fetch stats");
+      }
+
+      const data: AdminDashboardStats = await response.json();
+      setStats(data);
+
+      if (showRefreshingState) {
+        toast.success("Dashboard stats refreshed");
+      }
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to load stats"
+      );
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-          <LayoutDashboard className="h-8 w-8" />
-          Admin Dashboard
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Welcome to the VectorCraft administration panel. Manage your site content, settings, and configurations.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+            <LayoutDashboard className="h-8 w-8" />
+            Admin Dashboard
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Welcome to the VectorCraft administration panel. Manage your site content, settings, and configurations.
+          </p>
+        </div>
+        <Button
+          onClick={() => fetchStats(true)}
+          disabled={isLoading || isRefreshing}
+          variant="outline"
+          size="sm"
+        >
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+          />
+          Refresh
+        </Button>
       </div>
 
-      {/* Stats Overview - Placeholder for future implementation */}
+      {/* Stats Overview */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -57,8 +111,20 @@ export default function AdminDashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">All registered users</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{stats?.totalUsers || 0}</div>
+            )}
+            <p className="text-xs text-muted-foreground mt-1">
+              {isLoading ? (
+                <Skeleton className="h-3 w-24" />
+              ) : (
+                <>
+                  {stats?.freeUsers || 0} free, {stats?.paidUsers || 0} paid
+                </>
+              )}
+            </p>
           </CardContent>
         </Card>
 
@@ -68,30 +134,44 @@ export default function AdminDashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">Currently active</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{stats?.activeSubscriptions || 0}</div>
+            )}
+            <p className="text-xs text-muted-foreground mt-1">Currently active</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Showcase Images</CardTitle>
-            <Image className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Total Conversions</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">On landing page</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">{stats?.totalConversions || 0}</div>
+            )}
+            <p className="text-xs text-muted-foreground mt-1">All time</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">PayPal Status</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">Integration status</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-20" />
+            ) : (
+              <div className="text-2xl font-bold">
+                ${stats?.monthlyRevenue.toFixed(2) || "0.00"}
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground mt-1">Estimated MRR</p>
           </CardContent>
         </Card>
       </div>

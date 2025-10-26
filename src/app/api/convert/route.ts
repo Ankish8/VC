@@ -37,6 +37,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if user's subscription is paused
+    const userStatus = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { subscriptionStatus: true },
+    });
+
+    if (userStatus?.subscriptionStatus === "paused") {
+      return NextResponse.json(
+        {
+          error: "Subscription Paused",
+          message:
+            "Your account is currently paused. You are in view-only mode and cannot create new conversions. Please contact support to resolve this issue.",
+        },
+        { status: 403 }
+      );
+    }
+
     // Parse request body
     const body: ConvertRequest = await request.json();
 
