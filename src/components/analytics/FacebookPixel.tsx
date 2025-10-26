@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 
@@ -36,35 +36,13 @@ interface FacebookPixelProps {
 export function FacebookPixel({ pixelId }: FacebookPixelProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [isPixelLoaded, setIsPixelLoaded] = useState(false);
 
-  // Initialize pixel and track initial page view
+  // Track page views on route changes
   useEffect(() => {
-    // Wait for pixel to be available
-    const checkPixel = setInterval(() => {
-      if (typeof window !== 'undefined' && window.fbq) {
-        setIsPixelLoaded(true);
-        clearInterval(checkPixel);
-      }
-    }, 100);
-
-    // Cleanup interval after 5 seconds
-    const timeout = setTimeout(() => {
-      clearInterval(checkPixel);
-    }, 5000);
-
-    return () => {
-      clearInterval(checkPixel);
-      clearTimeout(timeout);
-    };
-  }, []);
-
-  // Track page views on route changes (after pixel is loaded)
-  useEffect(() => {
-    if (isPixelLoaded && typeof window !== 'undefined' && window.fbq) {
+    if (typeof window !== 'undefined' && window.fbq) {
       window.fbq('track', 'PageView');
     }
-  }, [pathname, searchParams, isPixelLoaded]);
+  }, [pathname, searchParams]);
 
   if (!pixelId) {
     return null;
@@ -76,14 +54,6 @@ export function FacebookPixel({ pixelId }: FacebookPixelProps) {
       <Script
         id="facebook-pixel-init"
         strategy="afterInteractive"
-        onLoad={() => {
-          // Pixel script loaded, initialize it
-          if (typeof window !== 'undefined' && window.fbq) {
-            window.fbq('init', pixelId);
-            window.fbq('track', 'PageView');
-            setIsPixelLoaded(true);
-          }
-        }}
         dangerouslySetInnerHTML={{
           __html: `
             !function(f,b,e,v,n,t,s)
@@ -94,6 +64,8 @@ export function FacebookPixel({ pixelId }: FacebookPixelProps) {
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '${pixelId}');
+            fbq('track', 'PageView');
           `,
         }}
       />
