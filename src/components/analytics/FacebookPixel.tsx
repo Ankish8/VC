@@ -1,29 +1,29 @@
 /**
  * Facebook Pixel Helper Functions
  *
- * Provides utility functions for tracking events with the Meta Pixel.
- * The pixel is loaded directly in the layout.tsx file using the official Meta code.
+ * Provides utility functions for tracking events with Google Tag Manager.
+ * GTM is loaded in layout.tsx and handles Facebook Pixel tracking.
  */
 
-// Type definitions for Facebook Pixel
+// Type definitions for GTM dataLayer
 declare global {
   interface Window {
-    fbq: (
+    dataLayer: any[];
+    fbq?: (
       action: 'track' | 'trackCustom' | 'init' | 'set',
       eventName: string,
       parameters?: Record<string, any>,
       eventId?: { eventID: string }
     ) => void;
-    _fbq: typeof window.fbq;
   }
 }
 
 /**
- * Helper function to track events with deduplication
- * Use this for client-side events that are also tracked server-side
+ * Helper function to track events through GTM dataLayer
+ * GTM will handle sending to Facebook Pixel
  *
- * @param eventName - Standard or custom event name
- * @param parameters - Event parameters
+ * @param eventName - Standard or custom event name (e.g., 'InitiateCheckout', 'Purchase')
+ * @param parameters - Event parameters (e.g., { value: 39, currency: 'USD' })
  * @param eventId - Event ID for deduplication with server-side events
  */
 export function trackEvent(
@@ -31,13 +31,14 @@ export function trackEvent(
   parameters?: Record<string, any>,
   eventId?: string
 ) {
-  if (typeof window !== 'undefined' && window.fbq) {
-    if (eventId) {
-      // Include eventID for deduplication with server-side events
-      window.fbq('track', eventName, parameters || {}, { eventID: eventId });
-    } else {
-      window.fbq('track', eventName, parameters || {});
-    }
+  if (typeof window !== 'undefined' && window.dataLayer) {
+    // Push event to GTM dataLayer
+    window.dataLayer.push({
+      event: 'facebook_event',
+      facebook_event_name: eventName,
+      facebook_event_params: parameters || {},
+      facebook_event_id: eventId,
+    });
   }
 }
 
