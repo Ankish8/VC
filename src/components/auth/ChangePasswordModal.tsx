@@ -27,22 +27,27 @@ export default function ChangePasswordModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submitted", { newPassword: "***", confirmPassword: "***" });
     setError("");
 
     // Validation
     if (newPassword.length < 8) {
+      console.log("Validation failed: password too short");
       setError("Password must be at least 8 characters long");
       return;
     }
 
     if (newPassword !== confirmPassword) {
+      console.log("Validation failed: passwords don't match");
       setError("Passwords do not match");
       return;
     }
 
+    console.log("Validation passed, making API request");
     setIsLoading(true);
 
     try {
+      console.log("Calling /api/auth/change-password");
       const response = await fetch("/api/auth/change-password", {
         method: "POST",
         headers: {
@@ -53,12 +58,15 @@ export default function ChangePasswordModal({
         }),
       });
 
+      console.log("API response status:", response.status);
       const data = await response.json();
+      console.log("API response data:", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to change password");
       }
 
+      console.log("Password changed successfully, redirecting...");
       // Success! Redirect to converter
       if (onSuccess) {
         onSuccess();
@@ -67,6 +75,7 @@ export default function ChangePasswordModal({
         router.refresh();
       }
     } catch (error: any) {
+      console.error("Error changing password:", error);
       setError(error.message || "An error occurred");
     } finally {
       setIsLoading(false);
