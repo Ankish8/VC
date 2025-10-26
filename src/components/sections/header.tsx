@@ -34,7 +34,7 @@ export default function Header() {
   return (
     <header
       className={
-        "sticky top-0 z-50 py-2 bg-white/60 backdrop-blur"
+        "sticky top-[64px] z-50 py-2 bg-white/60 backdrop-blur"
       }
     >
       <div className="flex justify-between items-center container mx-auto">
