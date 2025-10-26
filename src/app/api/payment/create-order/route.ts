@@ -8,7 +8,11 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { amount = "39.00" } = body;
+    const { amount = "39.00", fbp, fbc, eventId } = body;
+
+    // Store Facebook tracking data in a way that survives the redirect
+    // We'll encode it and pass it through PayPal's return URL
+    const trackingData = Buffer.from(JSON.stringify({ fbp, fbc, eventId })).toString('base64');
 
     // Get the base URL for return/cancel URLs
     const baseUrl =
@@ -29,7 +33,7 @@ export async function POST(request: NextRequest) {
       amount,
       currency: "USD",
       description: "VectorCraft Lifetime Deal - Unlimited Vector Conversions",
-      returnUrl: `${baseUrl}/api/payment/capture-order`,
+      returnUrl: `${baseUrl}/api/payment/capture-order?tracking=${encodeURIComponent(trackingData)}`,
       cancelUrl: `${baseUrl}/?payment=cancelled`,
     });
 

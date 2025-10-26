@@ -14,6 +14,7 @@ import { useState, useEffect } from "react";
 import { FaStar } from "react-icons/fa";
 import { CountdownTimer } from "@/components/ui/countdown-timer";
 import { trackEvent } from "@/components/analytics/FacebookPixel";
+import { getFacebookIds, generateEventId } from "@/lib/facebook-client";
 
 export default function PricingSection() {
   const [isMonthly, setIsMonthly] = useState(true);
@@ -70,13 +71,17 @@ export default function PricingSection() {
       // Use dynamic lifetime price if available
       const lifetimePrice = dynamicPricing?.lifetime?.price || 39.00;
 
+      // Get Facebook cookies for tracking
+      const facebookIds = getFacebookIds();
+      const eventId = generateEventId();
+
       // Track InitiateCheckout event in Facebook Pixel
       trackEvent('InitiateCheckout', {
         content_name: 'Lifetime Plan',
         value: lifetimePrice,
         currency: 'USD',
         content_type: 'product',
-      });
+      }, eventId);
 
       // Call API to create PayPal order for lifetime deal
       const response = await fetch("/api/payment/create-order", {
@@ -86,6 +91,10 @@ export default function PricingSection() {
         },
         body: JSON.stringify({
           amount: lifetimePrice.toFixed(2),
+          // Pass Facebook tracking data
+          fbp: facebookIds.fbp,
+          fbc: facebookIds.fbc,
+          eventId,
         }),
       });
 
@@ -125,13 +134,17 @@ export default function PricingSection() {
         throw new Error('Invalid plan');
       }
 
+      // Get Facebook cookies for tracking
+      const facebookIds = getFacebookIds();
+      const eventId = generateEventId();
+
       // Track InitiateCheckout event in Facebook Pixel
       trackEvent('InitiateCheckout', {
         content_name: `${planName} ${isMonthly ? 'Monthly' : 'Yearly'} Plan`,
         value: planValue,
         currency: 'USD',
         content_type: 'subscription',
-      });
+      }, eventId);
 
       // Call API to create PayPal subscription
       const response = await fetch("/api/payment/create-subscription", {
@@ -141,6 +154,10 @@ export default function PricingSection() {
         },
         body: JSON.stringify({
           planType,
+          // Pass Facebook tracking data
+          fbp: facebookIds.fbp,
+          fbc: facebookIds.fbc,
+          eventId,
         }),
       });
 

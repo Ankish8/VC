@@ -7,6 +7,7 @@ import { useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { getFacebookIds, generateEventId, trackFacebookEvent } from "@/lib/facebook-client";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -22,12 +23,26 @@ export default function Contact() {
     setIsSubmitting(true);
 
     try {
+      // Get Facebook tracking IDs from cookies
+      const { fbp, fbc } = getFacebookIds();
+      const eventId = generateEventId();
+
+      // Track Lead event in Facebook Pixel (browser-side)
+      trackFacebookEvent('Lead', {
+        content_name: `Contact Form: ${formData.subject}`,
+      }, eventId);
+
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          fbp,
+          fbc,
+          eventId,
+        }),
       });
 
       const data = await response.json();

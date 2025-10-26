@@ -12,6 +12,10 @@ const contactSchema = z.object({
   email: z.string().email('Invalid email address').max(255),
   subject: z.string().min(5, 'Subject must be at least 5 characters').max(200),
   message: z.string().min(10, 'Message must be at least 10 characters').max(2000),
+  // Facebook tracking parameters (optional)
+  fbp: z.string().optional(),
+  fbc: z.string().optional(),
+  eventId: z.string().optional(),
 });
 
 // Simple rate limiting (in-memory, resets on server restart)
@@ -60,7 +64,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = contactSchema.parse(body);
 
-    const { name, email, subject, message } = validatedData;
+    const { name, email, subject, message, fbp, fbc, eventId } = validatedData;
 
     // Save to database
     const contactSubmission = await prisma.contactSubmission.create({
@@ -92,13 +96,14 @@ export async function POST(request: NextRequest) {
 
     // Track Lead event in Facebook Conversions API
     const clientInfo = await getClientInfo();
-    const eventId = generateEventId();
     await trackLead({
       email,
       contentName: `Contact Form: ${subject}`,
       clientIp: clientInfo.ip,
       clientUserAgent: clientInfo.userAgent,
-      eventId,
+      eventId: eventId || generateEventId(), // Use client-provided eventId or generate new one
+      fbc, // Facebook Click ID from client
+      fbp, // Facebook Browser ID from client
     });
 
     return NextResponse.json(
@@ -114,13 +119,15 @@ export async function POST(request: NextRequest) {
 
     // Handle validation errors
     if (error instanceof z.ZodError) {
+      const validationErrors = error.errors.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+
       return NextResponse.json(
         {
           error: 'Validation failed',
-          details: error.errors.map((err) => ({
-            field: err.path.join('.'),
-            message: err.message,
-          })),
+          details: validationErrors,
         },
         { status: 400 }
       );

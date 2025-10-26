@@ -42,6 +42,20 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const subscriptionId = searchParams.get('subscription_id');
   const planType = searchParams.get('plan');
+  const trackingParam = searchParams.get('tracking');
+
+  // Decode Facebook tracking data
+  let fbp, fbc, eventId;
+  if (trackingParam) {
+    try {
+      const decoded = JSON.parse(Buffer.from(decodeURIComponent(trackingParam), 'base64').toString());
+      fbp = decoded.fbp;
+      fbc = decoded.fbc;
+      eventId = decoded.eventId;
+    } catch (e) {
+      console.warn('Failed to decode tracking data:', e);
+    }
+  }
 
   if (!subscriptionId || !planType) {
     redirect('/?payment=error&message=Missing subscription information');
@@ -104,7 +118,6 @@ export async function GET(request: NextRequest) {
 
       // Track Subscribe event in Facebook Conversions API
       const clientInfo = await getClientInfo();
-      const eventId = generateEventId();
       await trackSubscribe({
         email,
         userId: user.id,
@@ -114,7 +127,9 @@ export async function GET(request: NextRequest) {
         predictedLtv: getPredictedLTV(planType),
         clientIp: clientInfo.ip,
         clientUserAgent: clientInfo.userAgent,
-        eventId,
+        eventId: eventId || generateEventId(), // Use tracking data if available
+        fbc, // Facebook Click ID from tracking data
+        fbp, // Facebook Browser ID from tracking data
       });
 
       redirect(
@@ -186,7 +201,6 @@ export async function GET(request: NextRequest) {
 
       // Track Subscribe event in Facebook Conversions API
       const clientInfo = await getClientInfo();
-      const eventId = generateEventId();
       await trackSubscribe({
         email,
         userId: user.id,
@@ -196,7 +210,9 @@ export async function GET(request: NextRequest) {
         predictedLtv: getPredictedLTV(planType),
         clientIp: clientInfo.ip,
         clientUserAgent: clientInfo.userAgent,
-        eventId,
+        eventId: eventId || generateEventId(), // Use tracking data if available
+        fbc, // Facebook Click ID from tracking data
+        fbp, // Facebook Browser ID from tracking data
       });
 
       redirect(

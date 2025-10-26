@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
+import { getFacebookIds, generateEventId, trackFacebookEvent } from "@/lib/facebook-client";
 
 const registerSchema = z
   .object({
@@ -62,6 +63,16 @@ export function RegisterForm() {
       setIsLoading(true);
       setError(null);
 
+      // Get Facebook cookies for tracking
+      const facebookIds = getFacebookIds();
+      const eventId = generateEventId();
+
+      // Fire browser-side CompleteRegistration event
+      trackFacebookEvent('CompleteRegistration', {
+        content_name: 'Account Registration',
+        status: 'completed',
+      }, eventId);
+
       // Call registration API
       const response = await fetch("/api/auth/register", {
         method: "POST",
@@ -71,6 +82,10 @@ export function RegisterForm() {
         body: JSON.stringify({
           email: data.email,
           password: data.password,
+          // Pass Facebook tracking data to server
+          fbp: facebookIds.fbp,
+          fbc: facebookIds.fbc,
+          eventId,
         }),
       });
 

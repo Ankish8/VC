@@ -23,7 +23,7 @@ function isPlaceholderPlanId(planId: string | null): boolean {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { planType } = body; // starter_monthly, starter_yearly, pro_monthly, pro_yearly
+    const { planType, fbp, fbc, eventId } = body; // starter_monthly, starter_yearly, pro_monthly, pro_yearly
 
     if (!planType) {
       return NextResponse.json(
@@ -31,6 +31,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Store Facebook tracking data for the return URL
+    const trackingData = Buffer.from(JSON.stringify({ fbp, fbc, eventId })).toString('base64');
 
     // Get the plan ID from database
     const siteSettings = await prisma.siteSettings.findFirst();
@@ -133,7 +136,7 @@ export async function POST(request: NextRequest) {
     // Create the subscription
     const subscription = await createSubscription({
       planId,
-      returnUrl: `${APP_URL}/api/payment/capture-subscription?plan=${planType}`,
+      returnUrl: `${APP_URL}/api/payment/capture-subscription?plan=${planType}&tracking=${encodeURIComponent(trackingData)}`,
       cancelUrl: `${APP_URL}/?payment=cancelled`,
     });
 

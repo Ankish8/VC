@@ -6,7 +6,7 @@ import { trackRegistration, getClientInfo, generateEventId } from "@/lib/faceboo
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, name } = body;
+    const { email, password, name, fbp, fbc, eventId } = body;
 
     // Validate required fields
     if (!email || !password) {
@@ -67,14 +67,15 @@ export async function POST(request: NextRequest) {
 
     // Track CompleteRegistration event in Facebook Conversions API
     const clientInfo = await getClientInfo();
-    const eventId = generateEventId();
     await trackRegistration({
       email: user.email,
       userId: user.id,
       registrationMethod: 'email',
       clientIp: clientInfo.ip,
       clientUserAgent: clientInfo.userAgent,
-      eventId,
+      eventId: eventId || generateEventId(), // Use client-provided eventId or generate new one
+      fbc, // Facebook Click ID from client
+      fbp, // Facebook Browser ID from client
     });
 
     return NextResponse.json(

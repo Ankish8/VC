@@ -33,6 +33,20 @@ async function handleCaptureOrder(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const token = searchParams.get("token"); // PayPal order ID
     const payerId = searchParams.get("PayerID");
+    const trackingParam = searchParams.get("tracking");
+
+    // Decode Facebook tracking data
+    let fbp, fbc, eventId;
+    if (trackingParam) {
+      try {
+        const decoded = JSON.parse(Buffer.from(decodeURIComponent(trackingParam), 'base64').toString());
+        fbp = decoded.fbp;
+        fbc = decoded.fbc;
+        eventId = decoded.eventId;
+      } catch (e) {
+        console.warn('Failed to decode tracking data:', e);
+      }
+    }
 
     if (!token) {
       return NextResponse.redirect(
@@ -79,7 +93,6 @@ async function handleCaptureOrder(request: NextRequest) {
 
       // Track Purchase event in Facebook Conversions API
       const clientInfo = await getClientInfo();
-      const eventId = generateEventId();
       await trackPurchase({
         email: payerEmail,
         userId: existingUser.id,
@@ -88,7 +101,9 @@ async function handleCaptureOrder(request: NextRequest) {
         transactionId,
         clientIp: clientInfo.ip,
         clientUserAgent: clientInfo.userAgent,
-        eventId,
+        eventId: eventId || generateEventId(), // Use tracking data if available
+        fbc, // Facebook Click ID from tracking data
+        fbp, // Facebook Browser ID from tracking data
       });
 
       return NextResponse.redirect(
@@ -138,7 +153,6 @@ async function handleCaptureOrder(request: NextRequest) {
 
     // Track Purchase event in Facebook Conversions API
     const clientInfo = await getClientInfo();
-    const eventId = generateEventId();
     await trackPurchase({
       email: payerEmail,
       userId: newUser.id,
@@ -147,7 +161,9 @@ async function handleCaptureOrder(request: NextRequest) {
       transactionId,
       clientIp: clientInfo.ip,
       clientUserAgent: clientInfo.userAgent,
-      eventId,
+      eventId: eventId || generateEventId(), // Use tracking data if available
+      fbc, // Facebook Click ID from tracking data
+      fbp, // Facebook Browser ID from tracking data
     });
 
     // Redirect to success page with transaction ID for email change feature
