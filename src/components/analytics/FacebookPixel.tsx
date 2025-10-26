@@ -40,17 +40,13 @@ export function FacebookPixel({ pixelId }: FacebookPixelProps) {
   // Track page views on route changes
   useEffect(() => {
     if (typeof window !== 'undefined' && window.fbq) {
-      console.log('[Facebook Pixel] Tracking PageView on route change');
       window.fbq('track', 'PageView');
     }
   }, [pathname, searchParams]);
 
   if (!pixelId) {
-    console.warn('[Facebook Pixel] No pixel ID provided');
     return null;
   }
-
-  console.log('[Facebook Pixel] Initializing with Pixel ID:', pixelId);
 
   return (
     <>
@@ -68,11 +64,8 @@ export function FacebookPixel({ pixelId }: FacebookPixelProps) {
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            console.log('[Facebook Pixel] Script loaded, initializing...');
             fbq('init', '${pixelId}');
-            console.log('[Facebook Pixel] Pixel initialized, tracking PageView...');
             fbq('track', 'PageView');
-            console.log('[Facebook Pixel] PageView tracked');
           `,
         }}
       />
