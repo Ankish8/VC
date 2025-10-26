@@ -105,10 +105,11 @@ function HeroCTA() {
           BUY NOW
         </Link>
         <Link
-          href="/login"
+          href="#how-it-works"
+          onClick={handleSmoothScroll}
           className="shiny-button"
         >
-          Login
+          See How It Works
         </Link>
       </motion.div>
       <motion.p
