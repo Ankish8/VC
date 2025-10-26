@@ -89,7 +89,8 @@ export default async function RootLayout({ children }: RootLayoutProps) {
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
+      <head></head>
+      <body className={inter.className}>
         {/* Google Tag Manager */}
         <Script
           id="google-tag-manager"
@@ -105,8 +106,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           }}
         />
         {/* End Google Tag Manager */}
-      </head>
-      <body className={inter.className}>
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe
