@@ -5,9 +5,34 @@ import { prisma } from '@/lib/db';
 import { hash } from 'bcryptjs';
 import { Resend } from 'resend';
 import { initializeCreditsForSubscription } from '@/lib/credits';
+import { trackSubscribe, getClientInfo, generateEventId } from '@/lib/facebook-conversions-api';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
+/**
+ * Get subscription value based on plan type
+ */
+function getSubscriptionValue(planType: string): number {
+  if (planType.includes('starter_monthly')) return 10;
+  if (planType.includes('starter_yearly')) return 8;
+  if (planType.includes('professional_monthly')) return 19;
+  if (planType.includes('professional_yearly')) return 15;
+  return 10; // Default fallback
+}
+
+/**
+ * Calculate predicted LTV based on plan type
+ */
+function getPredictedLTV(planType: string): number {
+  if (planType.includes('yearly')) {
+    // Assume 3-year retention for yearly plans
+    return getSubscriptionValue(planType) * 12 * 3;
+  } else {
+    // Assume 12-month retention for monthly plans
+    return getSubscriptionValue(planType) * 12;
+  }
+}
 
 /**
  * GET /api/payment/capture-subscription
@@ -77,6 +102,21 @@ export async function GET(request: NextRequest) {
         subscriptionStartDate
       );
 
+      // Track Subscribe event in Facebook Conversions API
+      const clientInfo = await getClientInfo();
+      const eventId = generateEventId();
+      await trackSubscribe({
+        email,
+        userId: user.id,
+        planName: planType.replace('_', ' '),
+        value: getSubscriptionValue(planType),
+        currency: 'USD',
+        predictedLtv: getPredictedLTV(planType),
+        clientIp: clientInfo.ip,
+        clientUserAgent: clientInfo.userAgent,
+        eventId,
+      });
+
       redirect(
         `/?payment=success&existing=true&subscription=${planType.replace('_', ' ')}`
       );
@@ -143,6 +183,21 @@ export async function GET(request: NextRequest) {
         console.error('Failed to send welcome email:', emailError);
         // Don't fail the whole process if email fails
       }
+
+      // Track Subscribe event in Facebook Conversions API
+      const clientInfo = await getClientInfo();
+      const eventId = generateEventId();
+      await trackSubscribe({
+        email,
+        userId: user.id,
+        planName: planType.replace('_', ' '),
+        value: getSubscriptionValue(planType),
+        currency: 'USD',
+        predictedLtv: getPredictedLTV(planType),
+        clientIp: clientInfo.ip,
+        clientUserAgent: clientInfo.userAgent,
+        eventId,
+      });
 
       redirect(
         `/?payment=success&newUser=true&email=${encodeURIComponent(email)}&subscription=${planType.replace('_', ' ')}&txn=${encodeURIComponent(subscriptionId)}`

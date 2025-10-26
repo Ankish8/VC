@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { FaStar } from "react-icons/fa";
 import { CountdownTimer } from "@/components/ui/countdown-timer";
+import { trackEvent } from "@/components/analytics/FacebookPixel";
 
 export default function PricingSection() {
   const [isMonthly, setIsMonthly] = useState(true);
@@ -69,6 +70,14 @@ export default function PricingSection() {
       // Use dynamic lifetime price if available
       const lifetimePrice = dynamicPricing?.lifetime?.price || 39.00;
 
+      // Track InitiateCheckout event in Facebook Pixel
+      trackEvent('InitiateCheckout', {
+        content_name: 'Lifetime Plan',
+        value: lifetimePrice,
+        currency: 'USD',
+        content_type: 'product',
+      });
+
       // Call API to create PayPal order for lifetime deal
       const response = await fetch("/api/payment/create-order", {
         method: "POST",
@@ -100,14 +109,29 @@ export default function PricingSection() {
     try {
       // Determine plan type based on plan name and billing period
       let planType = '';
+      let planValue = 0;
 
       if (planName === 'STARTER') {
         planType = isMonthly ? 'starter_monthly' : 'starter_yearly';
+        planValue = isMonthly
+          ? (dynamicPricing?.starter?.monthly?.price || 10)
+          : (dynamicPricing?.starter?.yearly?.pricePerMonth || 8);
       } else if (planName === 'PROFESSIONAL') {
         planType = isMonthly ? 'pro_monthly' : 'pro_yearly';
+        planValue = isMonthly
+          ? (dynamicPricing?.professional?.monthly?.price || 19)
+          : (dynamicPricing?.professional?.yearly?.pricePerMonth || 15);
       } else {
         throw new Error('Invalid plan');
       }
+
+      // Track InitiateCheckout event in Facebook Pixel
+      trackEvent('InitiateCheckout', {
+        content_name: `${planName} ${isMonthly ? 'Monthly' : 'Yearly'} Plan`,
+        value: planValue,
+        currency: 'USD',
+        content_type: 'subscription',
+      });
 
       // Call API to create PayPal subscription
       const response = await fetch("/api/payment/create-subscription", {

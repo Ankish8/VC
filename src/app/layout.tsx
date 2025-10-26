@@ -7,6 +7,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SessionProvider } from "@/components/providers/SessionProvider";
+import { FacebookPixel } from "@/components/analytics/FacebookPixel";
 import { auth } from "@/lib/auth";
 import "./globals.css";
 
@@ -89,6 +90,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
+        {/* Facebook Pixel */}
+        {process.env.NEXT_PUBLIC_FB_PIXEL_ID && (
+          <FacebookPixel pixelId={process.env.NEXT_PUBLIC_FB_PIXEL_ID} />
+        )}
+
         <SessionProvider session={session}>
           <ThemeProvider
             attribute="class"

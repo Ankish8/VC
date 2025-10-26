@@ -7,6 +7,7 @@ import { CheckCircle2, Mail, XCircle, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { trackEvent } from "@/components/analytics/FacebookPixel";
 
 export function PaymentSuccessBanner() {
   const searchParams = useSearchParams();
@@ -33,6 +34,7 @@ export function PaymentSuccessBanner() {
     const existing = searchParams.get("existing");
     const messageParam = searchParams.get("message");
     const txn = searchParams.get("txn");
+    const subscription = searchParams.get("subscription");
 
     // Store transaction ID for email change feature
     if (txn) {
@@ -41,6 +43,34 @@ export function PaymentSuccessBanner() {
 
     if (payment === "success") {
       setShow(true);
+
+      // Track client-side Purchase event for browser pixel
+      // This complements the server-side tracking
+      if (subscription) {
+        // Subscription purchase
+        const planName = decodeURIComponent(subscription);
+        let value = 10; // Default starter monthly
+        if (planName.includes('Professional')) {
+          value = planName.includes('yearly') ? 15 : 19;
+        } else if (planName.includes('Starter')) {
+          value = planName.includes('yearly') ? 8 : 10;
+        }
+
+        trackEvent('Subscribe', {
+          content_name: planName,
+          value: value,
+          currency: 'USD',
+          content_type: 'subscription',
+        });
+      } else {
+        // Lifetime purchase
+        trackEvent('Purchase', {
+          content_name: 'Lifetime Plan',
+          value: 39,
+          currency: 'USD',
+          content_type: 'product',
+        });
+      }
 
       if (newUser === "true" && email) {
         setMessage({

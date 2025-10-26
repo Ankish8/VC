@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
+import { trackRegistration, getClientInfo, generateEventId } from "@/lib/facebook-conversions-api";
 
 export async function POST(request: NextRequest) {
   try {
@@ -62,6 +63,18 @@ export async function POST(request: NextRequest) {
         name: true,
         createdAt: true,
       },
+    });
+
+    // Track CompleteRegistration event in Facebook Conversions API
+    const clientInfo = await getClientInfo();
+    const eventId = generateEventId();
+    await trackRegistration({
+      email: user.email,
+      userId: user.id,
+      registrationMethod: 'email',
+      clientIp: clientInfo.ip,
+      clientUserAgent: clientInfo.userAgent,
+      eventId,
     });
 
     return NextResponse.json(

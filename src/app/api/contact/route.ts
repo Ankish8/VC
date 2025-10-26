@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import { sendContactNotification } from '@/lib/email-templates/contact-notification';
+import { trackLead, getClientInfo, generateEventId } from '@/lib/facebook-conversions-api';
 
 const prisma = new PrismaClient();
 
@@ -88,6 +89,17 @@ export async function POST(request: NextRequest) {
       console.error('⚠️ Failed to send email notification:', emailError);
       // Still return success since submission was saved
     }
+
+    // Track Lead event in Facebook Conversions API
+    const clientInfo = await getClientInfo();
+    const eventId = generateEventId();
+    await trackLead({
+      email,
+      contentName: `Contact Form: ${subject}`,
+      clientIp: clientInfo.ip,
+      clientUserAgent: clientInfo.userAgent,
+      eventId,
+    });
 
     return NextResponse.json(
       {

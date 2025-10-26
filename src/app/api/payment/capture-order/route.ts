@@ -4,6 +4,7 @@ import { sendWelcomeEmail } from "@/lib/email";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import { trackPurchase, getClientInfo, generateEventId } from "@/lib/facebook-conversions-api";
 
 /**
  * Generate a secure random password
@@ -76,6 +77,20 @@ async function handleCaptureOrder(request: NextRequest) {
         },
       });
 
+      // Track Purchase event in Facebook Conversions API
+      const clientInfo = await getClientInfo();
+      const eventId = generateEventId();
+      await trackPurchase({
+        email: payerEmail,
+        userId: existingUser.id,
+        value: 39.00,
+        currency: 'USD',
+        transactionId,
+        clientIp: clientInfo.ip,
+        clientUserAgent: clientInfo.userAgent,
+        eventId,
+      });
+
       return NextResponse.redirect(
         new URL(
           "/?payment=success&message=subscription_updated&existing=true",
@@ -120,6 +135,20 @@ async function handleCaptureOrder(request: NextRequest) {
       // Don't fail the entire process if email fails
       // User account is already created
     }
+
+    // Track Purchase event in Facebook Conversions API
+    const clientInfo = await getClientInfo();
+    const eventId = generateEventId();
+    await trackPurchase({
+      email: payerEmail,
+      userId: newUser.id,
+      value: 39.00,
+      currency: 'USD',
+      transactionId,
+      clientIp: clientInfo.ip,
+      clientUserAgent: clientInfo.userAgent,
+      eventId,
+    });
 
     // Redirect to success page with transaction ID for email change feature
     return NextResponse.redirect(
