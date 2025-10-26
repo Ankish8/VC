@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CheckCircle2, Mail, XCircle } from "lucide-react";
+import { CheckCircle2, Mail, XCircle, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
 export function PaymentSuccessBanner() {
@@ -17,12 +18,26 @@ export function PaymentSuccessBanner() {
     email?: string;
   } | null>(null);
 
+  // Email change functionality
+  const [isChangingEmail, setIsChangingEmail] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [emailChangeLoading, setEmailChangeLoading] = useState(false);
+  const [emailChangeError, setEmailChangeError] = useState("");
+  const [emailChangeSuccess, setEmailChangeSuccess] = useState(false);
+  const [transactionId, setTransactionId] = useState<string | null>(null);
+
   useEffect(() => {
     const payment = searchParams.get("payment");
     const email = searchParams.get("email");
     const newUser = searchParams.get("newUser");
     const existing = searchParams.get("existing");
     const messageParam = searchParams.get("message");
+    const txn = searchParams.get("txn");
+
+    // Store transaction ID for email change feature
+    if (txn) {
+      setTransactionId(decodeURIComponent(txn));
+    }
 
     if (payment === "success") {
       setShow(true);
@@ -65,6 +80,47 @@ export function PaymentSuccessBanner() {
     }
   }, [searchParams]);
 
+  const handleChangeEmail = async () => {
+    if (!newEmail || !transactionId) return;
+
+    setEmailChangeError("");
+    setEmailChangeLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/change-email-after-payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          newEmail,
+          transactionId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to change email");
+      }
+
+      // Update the displayed email
+      setMessage((prev) => prev ? { ...prev, email: newEmail } : null);
+      setEmailChangeSuccess(true);
+      setIsChangingEmail(false);
+      setNewEmail("");
+
+      // Hide success message after 5 seconds
+      setTimeout(() => {
+        setEmailChangeSuccess(false);
+      }, 5000);
+    } catch (error: any) {
+      setEmailChangeError(error.message || "An error occurred");
+    } finally {
+      setEmailChangeLoading(false);
+    }
+  };
+
   if (!show || !message) return null;
 
   return (
@@ -103,16 +159,85 @@ export function PaymentSuccessBanner() {
                 </p>
 
                 {message.email && (
-                  <div className="flex flex-col gap-2 pt-3">
-                    <Button
-                      asChild
-                      className="w-fit bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all"
-                    >
-                      <Link href="/login">
-                        Go to Login
-                      </Link>
-                    </Button>
-                    <p className="text-xs text-gray-600 flex items-center gap-1">
+                  <div className="flex flex-col gap-3 pt-3">
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        asChild
+                        className="w-fit bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all"
+                      >
+                        <Link href="/login">
+                          Go to Login
+                        </Link>
+                      </Button>
+
+                      {transactionId && !isChangingEmail && (
+                        <Button
+                          onClick={() => setIsChangingEmail(true)}
+                          variant="outline"
+                          className="w-fit border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        >
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Resend to Different Email
+                        </Button>
+                      )}
+                    </div>
+
+                    {emailChangeSuccess && (
+                      <div className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 bg-green-50 dark:bg-green-950 px-3 py-2 rounded-lg border border-green-200 dark:border-green-800">
+                        <CheckCircle2 className="h-3 w-3" />
+                        Credentials successfully sent to new email!
+                      </div>
+                    )}
+
+                    {isChangingEmail && (
+                      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 space-y-3">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                          Enter your correct email address:
+                        </p>
+                        <div className="flex gap-2">
+                          <Input
+                            type="email"
+                            placeholder="your-email@example.com"
+                            value={newEmail}
+                            onChange={(e) => setNewEmail(e.target.value)}
+                            disabled={emailChangeLoading}
+                            className="flex-1"
+                          />
+                          <Button
+                            onClick={handleChangeEmail}
+                            disabled={!newEmail || emailChangeLoading}
+                            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                          >
+                            {emailChangeLoading ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Sending...
+                              </>
+                            ) : (
+                              "Send"
+                            )}
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setIsChangingEmail(false);
+                              setNewEmail("");
+                              setEmailChangeError("");
+                            }}
+                            variant="outline"
+                            disabled={emailChangeLoading}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                        {emailChangeError && (
+                          <p className="text-xs text-red-600 dark:text-red-400">
+                            {emailChangeError}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1">
                       <Mail className="h-3 w-3" />
                       Email sent to: <span className="font-semibold">{message.email}</span>
                     </p>

@@ -121,10 +121,10 @@ async function handleCaptureOrder(request: NextRequest) {
       // User account is already created
     }
 
-    // Redirect to success page
+    // Redirect to success page with transaction ID for email change feature
     return NextResponse.redirect(
       new URL(
-        `/?payment=success&email=${encodeURIComponent(payerEmail)}&newUser=true`,
+        `/?payment=success&email=${encodeURIComponent(payerEmail)}&newUser=true&txn=${encodeURIComponent(transactionId)}`,
         request.url
       )
     );

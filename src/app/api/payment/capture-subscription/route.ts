@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
       }
 
       redirect(
-        `/?payment=success&newUser=true&email=${encodeURIComponent(email)}&subscription=${planType.replace('_', ' ')}`
+        `/?payment=success&newUser=true&email=${encodeURIComponent(email)}&subscription=${planType.replace('_', ' ')}&txn=${encodeURIComponent(subscriptionId)}`
       );
     }
   } catch (error: any) {
