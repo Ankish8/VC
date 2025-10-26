@@ -8,6 +8,7 @@ import Script from "next/script";
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SessionProvider } from "@/components/providers/SessionProvider";
+import { PageViewTracker } from "@/components/analytics/PageViewTracker";
 import { auth } from "@/lib/auth";
 import "./globals.css";
 
@@ -126,6 +127,7 @@ fbq('track', 'PageView');
         )}
       </head>
       <body className={inter.className}>
+        <PageViewTracker />
         <SessionProvider session={session}>
           <ThemeProvider
             attribute="class"
