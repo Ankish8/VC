@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import ReactPixel from 'react-facebook-pixel';
 
@@ -23,27 +23,43 @@ interface FacebookPixelProps {
 export function FacebookPixel({ pixelId }: FacebookPixelProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [initialized, setInitialized] = useState(false);
 
   // Initialize pixel on mount
   useEffect(() => {
-    if (!pixelId) return;
+    if (!pixelId || initialized) return;
 
-    // Initialize the pixel
-    ReactPixel.init(pixelId, undefined, {
-      autoConfig: true,
-      debug: false,
-    });
+    console.log('[Facebook Pixel] Initializing with ID:', pixelId);
 
-    // Track initial page view
-    ReactPixel.pageView();
-  }, [pixelId]);
+    try {
+      // Initialize the pixel
+      ReactPixel.init(pixelId, undefined, {
+        autoConfig: true,
+        debug: true, // Enable debug mode to see what's happening
+      });
+
+      console.log('[Facebook Pixel] Initialized successfully');
+
+      // Track initial page view
+      ReactPixel.pageView();
+      console.log('[Facebook Pixel] Initial PageView tracked');
+
+      setInitialized(true);
+    } catch (error) {
+      console.error('[Facebook Pixel] Initialization error:', error);
+    }
+  }, [pixelId, initialized]);
 
   // Track page views on route changes
   useEffect(() => {
+    if (!initialized) return;
+
+    console.log('[Facebook Pixel] Route changed, tracking PageView');
     ReactPixel.pageView();
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams, initialized]);
 
   if (!pixelId) {
+    console.warn('[Facebook Pixel] No pixel ID provided');
     return null;
   }
 
