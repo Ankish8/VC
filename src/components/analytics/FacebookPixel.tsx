@@ -1,79 +1,21 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
-import ReactPixel from 'react-facebook-pixel';
-
 /**
- * Facebook Pixel Component
+ * Facebook Pixel Helper Functions
  *
- * Loads the Facebook Pixel script and tracks page views.
- * Works in conjunction with the Conversions API for dual tracking.
- *
- * Features:
- * - Automatic page view tracking on route changes
- * - Event deduplication with server-side events
- * - Uses react-facebook-pixel package for reliable tracking
+ * Provides utility functions for tracking events with the Meta Pixel.
+ * The pixel is loaded directly in the layout.tsx file using the official Meta code.
  */
 
-interface FacebookPixelProps {
-  pixelId: string;
-}
-
-export function FacebookPixel({ pixelId }: FacebookPixelProps) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [initialized, setInitialized] = useState(false);
-
-  // Initialize pixel on mount
-  useEffect(() => {
-    if (!pixelId || initialized) return;
-
-    console.log('[Facebook Pixel] Initializing with ID:', pixelId);
-
-    try {
-      // Initialize the pixel
-      ReactPixel.init(pixelId, undefined, {
-        autoConfig: true,
-        debug: true, // Enable debug mode to see what's happening
-      });
-
-      console.log('[Facebook Pixel] Initialized successfully');
-
-      // Track initial page view
-      ReactPixel.pageView();
-      console.log('[Facebook Pixel] Initial PageView tracked');
-
-      setInitialized(true);
-    } catch (error) {
-      console.error('[Facebook Pixel] Initialization error:', error);
-    }
-  }, [pixelId, initialized]);
-
-  // Track page views on route changes
-  useEffect(() => {
-    if (!initialized) return;
-
-    console.log('[Facebook Pixel] Route changed, tracking PageView');
-    ReactPixel.pageView();
-  }, [pathname, searchParams, initialized]);
-
-  if (!pixelId) {
-    console.warn('[Facebook Pixel] No pixel ID provided');
-    return null;
+// Type definitions for Facebook Pixel
+declare global {
+  interface Window {
+    fbq: (
+      action: 'track' | 'trackCustom' | 'init' | 'set',
+      eventName: string,
+      parameters?: Record<string, any>,
+      eventId?: { eventID: string }
+    ) => void;
+    _fbq: typeof window.fbq;
   }
-
-  return (
-    <noscript>
-      <img
-        height="1"
-        width="1"
-        style={{ display: 'none' }}
-        src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
-        alt=""
-      />
-    </noscript>
-  );
 }
 
 /**
@@ -89,11 +31,13 @@ export function trackEvent(
   parameters?: Record<string, any>,
   eventId?: string
 ) {
-  if (eventId) {
-    // Include eventID for deduplication with server-side events
-    ReactPixel.track(eventName, parameters || {}, { eventID: eventId });
-  } else {
-    ReactPixel.track(eventName, parameters || {});
+  if (typeof window !== 'undefined' && window.fbq) {
+    if (eventId) {
+      // Include eventID for deduplication with server-side events
+      window.fbq('track', eventName, parameters || {}, { eventID: eventId });
+    } else {
+      window.fbq('track', eventName, parameters || {});
+    }
   }
 }
 
