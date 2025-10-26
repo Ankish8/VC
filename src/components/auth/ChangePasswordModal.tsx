@@ -73,13 +73,15 @@ export default function ChangePasswordModal({
       // Show success message
       setSuccess(true);
 
-      // Wait a moment to show the success message, then redirect
-      setTimeout(() => {
+      // Wait a moment to show the success message, then sign out and redirect to login
+      setTimeout(async () => {
         if (onSuccess) {
           onSuccess();
         } else {
-          // Force a full page reload to refresh the session
-          window.location.href = "/convert";
+          // Sign out the user to clear the session
+          await signOut({ redirect: false });
+          // Redirect to login page with success message
+          window.location.href = "/login?passwordChanged=true";
         }
       }, 1500);
     } catch (error: any) {
@@ -188,7 +190,7 @@ export default function ChangePasswordModal({
           {success && (
             <Alert className="text-sm bg-green-50 dark:bg-green-950 text-green-900 dark:text-green-100 border-green-200 dark:border-green-800">
               <CheckCircle2 className="h-4 w-4 inline mr-2" />
-              Password changed successfully! Redirecting...
+              Password changed successfully! Please sign in with your new password...
             </Alert>
           )}
 

@@ -1,9 +1,23 @@
 import nodemailer from 'nodemailer';
+import { render } from '@react-email/render';
+import PasswordResetEmail from '@/emails/password-reset';
+import PasswordChangedConfirmationEmail from '@/emails/password-changed-confirmation';
 
 export interface SendWelcomeEmailParams {
   to: string;
   name: string;
   tempPassword: string;
+}
+
+export interface SendPasswordResetEmailParams {
+  to: string;
+  name: string;
+  resetUrl: string;
+}
+
+export interface SendPasswordChangedEmailParams {
+  to: string;
+  name: string;
 }
 
 /**
@@ -163,6 +177,104 @@ export async function sendWelcomeEmail(params: SendWelcomeEmailParams) {
     return { success: true, data: { id: info.messageId } };
   } catch (error: any) {
     console.error("❌ SMTP Error:", error.message);
+    console.error("Full error:", error);
+    throw error;
+  }
+}
+
+/**
+ * Send password reset email via SMTP
+ */
+export async function sendPasswordResetEmail(params: SendPasswordResetEmailParams) {
+  const { to, name, resetUrl } = params;
+
+  const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+
+  try {
+    console.log("=== SENDING PASSWORD RESET EMAIL VIA SMTP ===");
+    console.log("To:", to);
+    console.log("From:", fromEmail);
+
+    // Render React Email component to HTML
+    const emailHtml = render(
+      PasswordResetEmail({ name, resetUrl })
+    );
+
+    // Create SMTP transporter for Resend
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.resend.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: 'resend',
+        pass: process.env.RESEND_API_KEY,
+      },
+    });
+
+    // Send email
+    const info = await transporter.sendMail({
+      from: fromEmail,
+      to: to,
+      subject: 'Reset Your VectorCraft Password',
+      html: emailHtml,
+    });
+
+    console.log("✅ Password reset email sent successfully via SMTP!");
+    console.log("Message ID:", info.messageId);
+
+    return { success: true, data: { id: info.messageId } };
+  } catch (error: any) {
+    console.error("❌ SMTP Error (Password Reset):", error.message);
+    console.error("Full error:", error);
+    throw error;
+  }
+}
+
+/**
+ * Send password changed confirmation email via SMTP
+ */
+export async function sendPasswordChangedEmail(params: SendPasswordChangedEmailParams) {
+  const { to, name } = params;
+
+  const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+  const loginUrl =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
+
+  try {
+    console.log("=== SENDING PASSWORD CHANGED CONFIRMATION EMAIL VIA SMTP ===");
+    console.log("To:", to);
+    console.log("From:", fromEmail);
+
+    // Render React Email component to HTML
+    const emailHtml = render(
+      PasswordChangedConfirmationEmail({ name, loginUrl: `${loginUrl}/login` })
+    );
+
+    // Create SMTP transporter for Resend
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.resend.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: 'resend',
+        pass: process.env.RESEND_API_KEY,
+      },
+    });
+
+    // Send email
+    const info = await transporter.sendMail({
+      from: fromEmail,
+      to: to,
+      subject: 'Your VectorCraft Password Has Been Changed',
+      html: emailHtml,
+    });
+
+    console.log("✅ Password changed confirmation email sent successfully via SMTP!");
+    console.log("Message ID:", info.messageId);
+
+    return { success: true, data: { id: info.messageId } };
+  } catch (error: any) {
+    console.error("❌ SMTP Error (Password Changed):", error.message);
     console.error("Full error:", error);
     throw error;
   }

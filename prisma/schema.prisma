@@ -43,6 +43,11 @@ model User {
 
   // Onboarding fields
   hasSeenTour         Boolean      @default(false) // Whether user has completed the onboarding tour
+
+  // Password Reset fields
+  resetToken          String?      @unique
+  resetTokenExpiry    DateTime?
+  lastResetRequestAt  DateTime?    // For rate limiting password reset requests
 }
 
 model Conversion {
