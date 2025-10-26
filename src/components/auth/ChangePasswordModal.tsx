@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut, signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert } from "@/components/ui/alert";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 
 interface ChangePasswordModalProps {
   email: string;
@@ -24,6 +25,7 @@ export default function ChangePasswordModal({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,18 +68,23 @@ export default function ChangePasswordModal({
         throw new Error(data.error || "Failed to change password");
       }
 
-      console.log("Password changed successfully, redirecting...");
-      // Success! Redirect to converter
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        router.push("/convert");
-        router.refresh();
-      }
+      console.log("Password changed successfully, showing success message...");
+
+      // Show success message
+      setSuccess(true);
+
+      // Wait a moment to show the success message, then redirect
+      setTimeout(() => {
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          // Force a full page reload to refresh the session
+          window.location.href = "/convert";
+        }
+      }, 1500);
     } catch (error: any) {
       console.error("Error changing password:", error);
       setError(error.message || "An error occurred");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -122,6 +129,7 @@ export default function ChangePasswordModal({
                 placeholder="Enter new password"
                 required
                 minLength={8}
+                disabled={isLoading || success}
                 className="pr-10"
               />
               <button
@@ -154,6 +162,7 @@ export default function ChangePasswordModal({
                 placeholder="Confirm new password"
                 required
                 minLength={8}
+                disabled={isLoading || success}
                 className="pr-10"
               />
               <button
@@ -170,21 +179,33 @@ export default function ChangePasswordModal({
             </div>
           </div>
 
-          {error && (
+          {error && !success && (
             <Alert variant="destructive" className="text-sm">
               {error}
+            </Alert>
+          )}
+
+          {success && (
+            <Alert className="text-sm bg-green-50 dark:bg-green-950 text-green-900 dark:text-green-100 border-green-200 dark:border-green-800">
+              <CheckCircle2 className="h-4 w-4 inline mr-2" />
+              Password changed successfully! Redirecting...
             </Alert>
           )}
 
           <Button
             type="submit"
             className="w-full"
-            disabled={isLoading}
+            disabled={isLoading || success}
           >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Changing Password...
+              </>
+            ) : success ? (
+              <>
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                Success!
               </>
             ) : (
               "Change Password"
