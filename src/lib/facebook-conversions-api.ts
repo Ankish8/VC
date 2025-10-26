@@ -246,9 +246,12 @@ export async function trackConversionEvent(
       };
     }
 
-    console.log(`Facebook Conversion Event tracked: ${eventName}`, {
+    // Log successful event with detailed response info for verification
+    console.log(`✓ Facebook Conversions API - ${eventName}`, {
       eventsReceived: result.events_received,
-      eventId,
+      eventId: eventId,
+      fbtrace_id: result.fbtrace_id,
+      timestamp: new Date().toISOString(),
     });
 
     return { success: true };
