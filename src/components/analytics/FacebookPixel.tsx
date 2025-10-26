@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import Script from 'next/script';
+import ReactPixel from 'react-facebook-pixel';
 
 /**
  * Facebook Pixel Component
@@ -13,21 +13,8 @@ import Script from 'next/script';
  * Features:
  * - Automatic page view tracking on route changes
  * - Event deduplication with server-side events
- * - Test mode detection in development
+ * - Uses react-facebook-pixel package for reliable tracking
  */
-
-// Type definitions for Facebook Pixel
-declare global {
-  interface Window {
-    fbq: (
-      action: 'track' | 'trackCustom' | 'init' | 'set',
-      eventName: string,
-      parameters?: Record<string, any>,
-      eventId?: { eventID: string }
-    ) => void;
-    _fbq: typeof window.fbq;
-  }
-}
 
 interface FacebookPixelProps {
   pixelId: string;
@@ -37,11 +24,23 @@ export function FacebookPixel({ pixelId }: FacebookPixelProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Track page views on route changes (after initial load)
+  // Initialize pixel on mount
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'PageView');
-    }
+    if (!pixelId) return;
+
+    // Initialize the pixel
+    ReactPixel.init(pixelId, undefined, {
+      autoConfig: true,
+      debug: false,
+    });
+
+    // Track initial page view
+    ReactPixel.pageView();
+  }, [pixelId]);
+
+  // Track page views on route changes
+  useEffect(() => {
+    ReactPixel.pageView();
   }, [pathname, searchParams]);
 
   if (!pixelId) {
@@ -49,46 +48,15 @@ export function FacebookPixel({ pixelId }: FacebookPixelProps) {
   }
 
   return (
-    <>
-      {/* Facebook Pixel Base Code - Loads the pixel stub and SDK */}
-      <Script
-        id="facebook-pixel-base"
-        strategy="afterInteractive"
-      >
-        {`
-          !function(f,b,e,v,n,t,s)
-          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-          n.queue=[];t=b.createElement(e);t.async=!0;
-          t.src=v;s=b.getElementsByTagName(e)[0];
-          s.parentNode.insertBefore(t,s)}(window, document,'script',
-          'https://connect.facebook.net/en_US/fbevents.js');
-        `}
-      </Script>
-
-      {/* Facebook Pixel Init - Initializes with your pixel ID and tracks PageView */}
-      <Script
-        id="facebook-pixel-init"
-        strategy="afterInteractive"
-      >
-        {`
-          fbq('init', '${pixelId}');
-          fbq('track', 'PageView');
-        `}
-      </Script>
-
-      {/* Facebook Pixel NoScript Fallback */}
-      <noscript>
-        <img
-          height="1"
-          width="1"
-          style={{ display: 'none' }}
-          src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
-          alt=""
-        />
-      </noscript>
-    </>
+    <noscript>
+      <img
+        height="1"
+        width="1"
+        style={{ display: 'none' }}
+        src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
+        alt=""
+      />
+    </noscript>
   );
 }
 
@@ -105,13 +73,11 @@ export function trackEvent(
   parameters?: Record<string, any>,
   eventId?: string
 ) {
-  if (typeof window !== 'undefined' && window.fbq) {
-    if (eventId) {
-      // Include eventID for deduplication with server-side events
-      window.fbq('track', eventName, parameters || {}, { eventID: eventId });
-    } else {
-      window.fbq('track', eventName, parameters || {});
-    }
+  if (eventId) {
+    // Include eventID for deduplication with server-side events
+    ReactPixel.track(eventName, parameters || {}, { eventID: eventId });
+  } else {
+    ReactPixel.track(eventName, parameters || {});
   }
 }
 
