@@ -11,26 +11,39 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
 /**
- * Get subscription value based on plan type
+ * Get subscription value from database based on plan type
  */
-function getSubscriptionValue(planType: string): number {
-  if (planType.includes('starter_monthly')) return 10;
-  if (planType.includes('starter_yearly')) return 8;
-  if (planType.includes('professional_monthly')) return 19;
-  if (planType.includes('professional_yearly')) return 15;
-  return 10; // Default fallback
+async function getSubscriptionValue(planType: string): Promise<number> {
+  const siteSettings = await prisma.siteSettings.findFirst();
+
+  if (!siteSettings) {
+    // Fallback to defaults if settings not found
+    if (planType.includes('starter_monthly')) return 10;
+    if (planType.includes('starter_yearly')) return 8;
+    if (planType.includes('professional_monthly')) return 19;
+    if (planType.includes('professional_yearly')) return 15;
+    return 10;
+  }
+
+  if (planType.includes('starter_monthly')) return siteSettings.starterMonthlyPrice;
+  if (planType.includes('starter_yearly')) return siteSettings.starterYearlyPrice;
+  if (planType.includes('professional_monthly')) return siteSettings.proMonthlyPrice;
+  if (planType.includes('professional_yearly')) return siteSettings.proYearlyPrice;
+  return siteSettings.starterMonthlyPrice; // Default fallback
 }
 
 /**
  * Calculate predicted LTV based on plan type
  */
-function getPredictedLTV(planType: string): number {
+async function getPredictedLTV(planType: string): Promise<number> {
+  const value = await getSubscriptionValue(planType);
+
   if (planType.includes('yearly')) {
     // Assume 3-year retention for yearly plans
-    return getSubscriptionValue(planType) * 12 * 3;
+    return value * 12 * 3;
   } else {
     // Assume 12-month retention for monthly plans
-    return getSubscriptionValue(planType) * 12;
+    return value * 12;
   }
 }
 
@@ -118,13 +131,16 @@ export async function GET(request: NextRequest) {
 
       // Track Subscribe event in Facebook Conversions API
       const clientInfo = await getClientInfo();
+      const subscriptionValue = await getSubscriptionValue(planType);
+      const predictedLtv = await getPredictedLTV(planType);
+
       await trackSubscribe({
         email,
         userId: user.id,
         planName: planType.replace('_', ' '),
-        value: getSubscriptionValue(planType),
+        value: subscriptionValue,
         currency: 'USD',
-        predictedLtv: getPredictedLTV(planType),
+        predictedLtv: predictedLtv,
         clientIp: clientInfo.ip,
         clientUserAgent: clientInfo.userAgent,
         eventId: eventId || generateEventId(), // Use tracking data if available
@@ -201,13 +217,16 @@ export async function GET(request: NextRequest) {
 
       // Track Subscribe event in Facebook Conversions API
       const clientInfo = await getClientInfo();
+      const subscriptionValue = await getSubscriptionValue(planType);
+      const predictedLtv = await getPredictedLTV(planType);
+
       await trackSubscribe({
         email,
         userId: user.id,
         planName: planType.replace('_', ' '),
-        value: getSubscriptionValue(planType),
+        value: subscriptionValue,
         currency: 'USD',
-        predictedLtv: getPredictedLTV(planType),
+        predictedLtv: predictedLtv,
         clientIp: clientInfo.ip,
         clientUserAgent: clientInfo.userAgent,
         eventId: eventId || generateEventId(), // Use tracking data if available

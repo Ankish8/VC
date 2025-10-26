@@ -69,6 +69,11 @@ async function handleCaptureOrder(request: NextRequest) {
     const payerName = `${captureResult.payer.name.given_name} ${captureResult.payer.name.surname}`;
     const transactionId = captureResult.id;
 
+    // Extract actual amount paid from PayPal response
+    const actualAmount = parseFloat(
+      captureResult.purchase_units[0]?.payments?.captures[0]?.amount?.value || "39.00"
+    );
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email: payerEmail },
@@ -96,7 +101,7 @@ async function handleCaptureOrder(request: NextRequest) {
       await trackPurchase({
         email: payerEmail,
         userId: existingUser.id,
-        value: 39.00,
+        value: actualAmount,
         currency: 'USD',
         transactionId,
         clientIp: clientInfo.ip,
@@ -156,7 +161,7 @@ async function handleCaptureOrder(request: NextRequest) {
     await trackPurchase({
       email: payerEmail,
       userId: newUser.id,
-      value: 39.00,
+      value: actualAmount,
       currency: 'USD',
       transactionId,
       clientIp: clientInfo.ip,
