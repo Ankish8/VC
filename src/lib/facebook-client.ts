@@ -59,7 +59,24 @@ export function getFbc(): string | undefined {
 
   if (fbclid) {
     // Construct fbc value: fb.version.timestamp.fbclid
-    return `fb.1.${Date.now()}.${fbclid}`;
+    const fbc = `fb.1.${Date.now()}.${fbclid}`;
+
+    // Store it in localStorage as backup for future page loads
+    try {
+      localStorage.setItem('_fbc_backup', fbc);
+    } catch (e) {
+      // Ignore if localStorage is blocked
+    }
+
+    return fbc;
+  }
+
+  // Try to get from localStorage backup if available
+  try {
+    const backup = localStorage.getItem('_fbc_backup');
+    if (backup) return backup;
+  } catch (e) {
+    // Ignore if localStorage is blocked
   }
 
   return undefined;

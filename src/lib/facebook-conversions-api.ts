@@ -270,6 +270,8 @@ export async function trackConversionEvent(
  */
 export async function trackPurchase(params: {
   email: string;
+  firstName?: string;
+  lastName?: string;
   userId?: string;
   value: number;
   currency?: string;
@@ -285,6 +287,8 @@ export async function trackPurchase(params: {
     'Purchase',
     {
       email: params.email,
+      firstName: params.firstName,
+      lastName: params.lastName,
       externalId: params.userId,
       clientIpAddress: params.clientIp,
       clientUserAgent: params.clientUserAgent,
@@ -404,6 +408,8 @@ export async function trackInitiateCheckout(params: {
  */
 export async function trackSubscribe(params: {
   email: string;
+  firstName?: string;
+  lastName?: string;
   userId?: string;
   planName: string;
   value: number;
@@ -419,6 +425,8 @@ export async function trackSubscribe(params: {
     'Subscribe',
     {
       email: params.email,
+      firstName: params.firstName,
+      lastName: params.lastName,
       externalId: params.userId,
       clientIpAddress: params.clientIp,
       clientUserAgent: params.clientUserAgent,

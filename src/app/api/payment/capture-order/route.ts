@@ -66,7 +66,9 @@ async function handleCaptureOrder(request: NextRequest) {
 
     // Extract payer information
     const payerEmail = captureResult.payer.email_address;
-    const payerName = `${captureResult.payer.name.given_name} ${captureResult.payer.name.surname}`;
+    const firstName = captureResult.payer.name.given_name;
+    const lastName = captureResult.payer.name.surname;
+    const payerName = `${firstName} ${lastName}`;
     const transactionId = captureResult.id;
 
     // Extract actual amount paid from PayPal response
@@ -100,6 +102,8 @@ async function handleCaptureOrder(request: NextRequest) {
       const clientInfo = await getClientInfo();
       await trackPurchase({
         email: payerEmail,
+        firstName,
+        lastName,
         userId: existingUser.id,
         value: actualAmount,
         currency: 'USD',
@@ -160,6 +164,8 @@ async function handleCaptureOrder(request: NextRequest) {
     const clientInfo = await getClientInfo();
     await trackPurchase({
       email: payerEmail,
+      firstName,
+      lastName,
       userId: newUser.id,
       value: actualAmount,
       currency: 'USD',

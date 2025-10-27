@@ -136,6 +136,8 @@ export async function GET(request: NextRequest) {
 
       await trackSubscribe({
         email,
+        firstName,
+        lastName,
         userId: user.id,
         planName: planType.replace('_', ' '),
         value: subscriptionValue,
@@ -222,6 +224,8 @@ export async function GET(request: NextRequest) {
 
       await trackSubscribe({
         email,
+        firstName,
+        lastName,
         userId: user.id,
         planName: planType.replace('_', ' '),
         value: subscriptionValue,
