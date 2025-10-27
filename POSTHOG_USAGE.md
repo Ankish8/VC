@@ -194,12 +194,23 @@ trackEvent('rate_limit_hit', {
 
 ## 🚀 Production Deployment
 
-When deploying to production, add these environment variables to Vercel:
+Environment variables are already configured in Vercel:
 
 ```bash
 NEXT_PUBLIC_POSTHOG_KEY=phc_Oq8NuxV5OeyJknCvxP7KVkqCPp8dvoXqk1uK1YpgK42
 NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
 ```
+
+### Reverse Proxy Setup
+
+PostHog uses a **Vercel reverse proxy** to bypass ad blockers:
+
+- **Proxy Path**: `/relay-gK42/`
+- **Why**: Routes PostHog requests through your domain instead of `us.i.posthog.com`
+- **Benefit**: Captures data from 100% of users, even those with ad blockers
+- **Configuration**: Defined in `vercel.json` with rewrites
+
+This means PostHog requests go to `https://thevectorcraft.com/relay-gK42/` instead of being blocked by ad blockers!
 
 ### Considerations for Production
 
