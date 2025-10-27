@@ -83,7 +83,8 @@ export default function AdminPayPalSettings() {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to update PayPal configuration");
+        const errorMsg = data.details ? `${data.error}: ${data.details}` : (data.error || "Failed to update PayPal configuration");
+        throw new Error(errorMsg);
       }
 
       setSuccess("PayPal configuration saved successfully!");

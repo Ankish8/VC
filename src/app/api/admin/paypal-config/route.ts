@@ -110,9 +110,12 @@ export async function PUT(req: NextRequest) {
       success: true,
       message: "PayPal configuration updated successfully",
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating PayPal config:", error);
-    return NextResponse.json({ error: "Failed to update PayPal configuration" }, { status: 500 });
+    return NextResponse.json({
+      error: "Failed to update PayPal configuration",
+      details: error.message
+    }, { status: 500 });
   }
 }
 
