@@ -8,6 +8,7 @@ import Script from "next/script";
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SessionProvider } from "@/components/providers/SessionProvider";
+import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import { auth } from "@/lib/auth";
 import "./globals.css";
 
@@ -117,25 +118,27 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         </noscript>
         {/* End Google Tag Manager (noscript) */}
 
-        <SessionProvider session={session}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-            <Toaster
-              position="top-right"
-              expand={false}
-              richColors
-              closeButton
-              duration={4000}
-            />
-            <Analytics />
-            <SpeedInsights />
-          </ThemeProvider>
-        </SessionProvider>
+        <PostHogProvider>
+          <SessionProvider session={session}>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+              <Toaster
+                position="top-right"
+                expand={false}
+                richColors
+                closeButton
+                duration={4000}
+              />
+              <Analytics />
+              <SpeedInsights />
+            </ThemeProvider>
+          </SessionProvider>
+        </PostHogProvider>
       </body>
     </html>
   );
