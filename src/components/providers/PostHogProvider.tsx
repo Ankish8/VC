@@ -12,7 +12,8 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     // Initialize PostHog
     if (typeof window !== 'undefined') {
       posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-        api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
+        api_host: '/relay-gK42',
+        ui_host: 'https://us.posthog.com',
         person_profiles: 'identified_only',
         capture_pageview: false, // We'll manually capture pageviews
         capture_pageleave: true,
