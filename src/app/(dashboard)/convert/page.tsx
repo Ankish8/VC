@@ -49,6 +49,12 @@ export default function ConvertPage() {
   // Check if CSAT survey feature flag is enabled
   const csatEnabled = useFeatureFlagEnabled("csat-survey-enabled");
 
+  // Debug: Log feature flag status
+  useEffect(() => {
+    console.log("CSAT Feature Flag Enabled:", csatEnabled);
+    console.log("PostHog object:", typeof window !== 'undefined' ? window.posthog : 'not available');
+  }, [csatEnabled]);
+
   // Handle file selection
   const handleFileSelect = async (file: File) => {
     setSelectedFile(file);
@@ -194,11 +200,18 @@ export default function ConvertPage() {
 
       // Trigger PostHog CSAT survey (only if feature flag is enabled)
       if (csatEnabled) {
+        console.log("Firing conversion_completed event with:", {
+          conversionId: conversionResult?.id,
+          fileSize: file?.size,
+          originalFormat: file?.type,
+        });
         trackEvent("conversion_completed", {
           conversionId: conversionResult?.id,
           fileSize: file?.size,
           originalFormat: file?.type,
         });
+      } else {
+        console.log("CSAT feature flag is disabled, skipping event");
       }
     } catch (error) {
       console.error("Conversion error:", error);
