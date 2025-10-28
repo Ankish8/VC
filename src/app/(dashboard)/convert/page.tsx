@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { RefreshCw, Sparkles } from "lucide-react";
+import { useFeatureFlagEnabled } from "posthog-js/react";
 import { ImageUpload } from "@/components/converter/ImageUpload";
 import { ConversionProgress } from "@/components/converter/ConversionProgress";
 import { SVGPreview } from "@/components/converter/SVGPreview";
@@ -11,6 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ConversionResult } from "@/types";
 import { useClipboardPaste } from "@/hooks/useClipboardPaste";
 import CreditBanner from "@/components/dashboard/CreditBanner";
+import { trackEvent } from "@/lib/posthog";
 
 type WorkflowStage =
   | "idle"
@@ -43,6 +45,9 @@ export default function ConvertPage() {
   const [workflowStage, setWorkflowStage] = useState<WorkflowStage>("idle");
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<ConversionError | null>(null);
+
+  // Check if CSAT survey feature flag is enabled
+  const csatEnabled = useFeatureFlagEnabled("csat-survey-enabled");
 
   // Handle file selection
   const handleFileSelect = async (file: File) => {
@@ -186,6 +191,15 @@ export default function ConvertPage() {
       // Step 3: Complete
       setWorkflowStage("completed");
       setProgress(100);
+
+      // Trigger PostHog CSAT survey (only if feature flag is enabled)
+      if (csatEnabled) {
+        trackEvent("conversion_completed", {
+          conversionId: conversionResult?.id,
+          fileSize: file?.size,
+          originalFormat: file?.type,
+        });
+      }
     } catch (error) {
       console.error("Conversion error:", error);
 
