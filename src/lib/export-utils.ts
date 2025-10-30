@@ -7,9 +7,13 @@ import { toast } from "sonner";
 
 /**
  * Optimize SVG by reducing decimal precision
+ * Uses async processing to prevent blocking the main thread
  */
-function optimizeSVG(svgString: string, precision: number): string {
+async function optimizeSVG(svgString: string, precision: number): Promise<string> {
   if (precision === -1) return svgString; // No optimization
+
+  // Yield to the main thread before heavy regex operations
+  await new Promise(resolve => setTimeout(resolve, 0));
 
   // Round numbers to specified precision
   const regex = /(\d+\.\d+)/g;
@@ -21,15 +25,22 @@ function optimizeSVG(svgString: string, precision: number): string {
 
 /**
  * Export SVG with optimization options
+ * Uses async processing to prevent blocking the main thread
  */
-export function exportSVG(svgElement: SVGElement, options: ExportOptions): void {
+export async function exportSVG(svgElement: SVGElement, options: ExportOptions): Promise<void> {
   try {
+    // Yield to main thread before heavy serialization
+    await new Promise(resolve => setTimeout(resolve, 0));
+
     let svgString = new XMLSerializer().serializeToString(svgElement);
 
     // Apply optimization if requested
     if (options.svgOptimize && options.svgPrecision !== undefined) {
-      svgString = optimizeSVG(svgString, options.svgPrecision);
+      svgString = await optimizeSVG(svgString, options.svgPrecision);
     }
+
+    // Yield again before DOM manipulation
+    await new Promise(resolve => setTimeout(resolve, 0));
 
     // Create blob and download
     const blob = new Blob([svgString], { type: "image/svg+xml" });
@@ -51,9 +62,13 @@ export function exportSVG(svgElement: SVGElement, options: ExportOptions): void 
 
 /**
  * Export as PNG using canvas
+ * Uses async processing to prevent blocking the main thread
  */
-export function exportPNG(svgElement: SVGElement, options: ExportOptions): void {
+export async function exportPNG(svgElement: SVGElement, options: ExportOptions): Promise<void> {
   try {
+    // Yield to main thread before heavy operations
+    await new Promise(resolve => setTimeout(resolve, 0));
+
     const svgString = new XMLSerializer().serializeToString(svgElement);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -74,41 +89,53 @@ export function exportPNG(svgElement: SVGElement, options: ExportOptions): void 
     const blob = new Blob([svgString], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
 
-    img.onload = () => {
-      // Draw SVG to canvas
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(url);
+    // Use Promise to handle async image loading
+    await new Promise<void>((resolve, reject) => {
+      img.onload = async () => {
+        // Yield before heavy canvas operations
+        await new Promise(r => setTimeout(r, 0));
 
-      // Convert to PNG blob
-      canvas.toBlob(
-        (pngBlob) => {
-          if (!pngBlob) {
-            toast.error("Failed to create PNG");
-            return;
-          }
+        // Draw SVG to canvas
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
 
-          const pngUrl = URL.createObjectURL(pngBlob);
-          const link = document.createElement("a");
-          link.href = pngUrl;
-          link.download = `${options.filename}.png`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(pngUrl);
+        // Convert to PNG blob
+        canvas.toBlob(
+          async (pngBlob) => {
+            if (!pngBlob) {
+              toast.error("Failed to create PNG");
+              reject(new Error("Failed to create PNG"));
+              return;
+            }
 
-          toast.success("PNG exported successfully");
-        },
-        "image/png",
-        (options.pngQuality || 95) / 100
-      );
-    };
+            // Yield before final DOM operations
+            await new Promise(r => setTimeout(r, 0));
 
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      toast.error("Failed to load SVG for PNG export");
-    };
+            const pngUrl = URL.createObjectURL(pngBlob);
+            const link = document.createElement("a");
+            link.href = pngUrl;
+            link.download = `${options.filename}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(pngUrl);
 
-    img.src = url;
+            toast.success("PNG exported successfully");
+            resolve();
+          },
+          "image/png",
+          (options.pngQuality || 95) / 100
+        );
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        toast.error("Failed to load SVG for PNG export");
+        reject(new Error("Failed to load SVG"));
+      };
+
+      img.src = url;
+    });
   } catch (error) {
     console.error("Error exporting PNG:", error);
     toast.error("Failed to export PNG");
@@ -227,10 +254,10 @@ export async function exportFile(
 
   switch (options.format) {
     case "svg":
-      exportSVG(svgElement, options);
+      await exportSVG(svgElement, options);
       break;
     case "png":
-      exportPNG(svgElement, options);
+      await exportPNG(svgElement, options);
       break;
     case "pdf":
       await exportPDF(svgElement, options);
